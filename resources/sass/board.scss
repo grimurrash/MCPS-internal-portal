@@ -1,0 +1,361 @@
+/*! rtl:ignore */
+/* autoprefixer: off */
+
+$color-gradient-blue: rgb(16, 93, 127);
+$color-black: rgb(51, 51, 51);
+$color-red: #a14a7f;
+
+$block-background: rgba(255, 255, 255, 0.5);
+
+html, body {
+  background: #f0f0f0;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  font-family: "Roboto", sans-serif;
+  letter-spacing: 0;
+  color: #ffffff;
+  text-shadow: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-large {
+  font-size: 24px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+main, footer {
+  margin: 0 15px 15px;
+}
+
+
+.header {
+  width: 100%;
+  z-index: 5;
+  text-align: center;
+  position: relative;
+  padding-bottom: 40px;
+
+  &_photo {
+    width: 95%;
+    height: auto;
+  }
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+
+  .col {
+    display: flex;
+    flex-direction: column;
+
+    &.col-6 {
+      width: 50%;
+    }
+
+    &.col-3 {
+      width: 25%;
+    }
+  }
+}
+
+.block {
+  overflow: hidden;
+  border-radius: 20px;
+  z-index: 10;
+
+  &.has-background {
+    -webkit-mask-image: none;
+    mask-image: none;
+    background: $block-background;
+    padding: 15px;
+    color: $color-black;
+    margin: 5px 10px;
+  }
+
+  .block-title, .block-name, .day {
+    text-align: left;
+    color: $color-red;
+    font-size: 20px;
+    margin-bottom: 5px;
+    opacity: .8;
+  }
+}
+
+.block-gradient-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60%;
+  z-index: 4;
+  box-sizing: border-box;
+  background: linear-gradient(0deg, rgba(16, 93, 127, 0.7) 0%, rgba(0, 0, 0, 0) 100%);
+}
+
+.block-gradient-bottom {
+  position: fixed;
+  top: 60%;
+  left: 0;
+  width: 100%;
+  height: 40%;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, rgba(16, 93, 127, 0.7) 0%, rgba(0, 0, 0, 0) 100%);
+}
+
+.block-datetime {
+  z-index: 10;
+  color: #105d7f;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  mask-image: linear-gradient(to bottom, white 90%, transparent);
+
+  position: absolute;
+  left: 42%;
+  bottom: 5px;
+
+  &_time {
+    font-size: 3.2em;
+    font-weight: 300;
+    letter-spacing: -2px;
+  }
+
+  &_date {
+    padding-left: 5px;
+  }
+}
+
+.block-person-info {
+  display: flex;
+  height: 8%;
+  width: 100%;
+  margin-bottom: 10px;
+  justify-content: space-between;
+
+  &_fio {
+    width: calc(100% - 210px);
+    font-size: 200%;
+  }
+
+  &_office {
+    width: 110px;
+
+    .block-body {
+      text-align: center;
+      font-size: 2.6em;
+    }
+  }
+}
+
+.block-planner {
+  height: 100%;
+}
+
+.block-wi-fi, .block-request {
+  text-align: center;
+  height: 100%;
+
+  img {
+    margin-top: .2em;
+    max-width: 100%;
+  }
+}
+
+.block-weather {
+  sup {
+    font-size: 60%;
+  }
+
+  .weather-current {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    letter-spacing: -2px;
+    font-size: 3.2em;
+    font-weight: 300;
+    height: 110px;
+
+    img {
+      height: 90px;
+    }
+  }
+
+  .weather-forecast-group {
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .weather-forecast {
+    display: table-cell;
+
+    .day {
+      font-size: 85%;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      padding: 5px 10px;
+      text-align: center;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+      min-width: 65px;
+    }
+
+    .weather-forecast-item {
+      text-align: center;
+      width: 100%;
+
+      .weather-forecast-item-low {
+        margin-left: 5px;
+      }
+    }
+
+
+    img {
+      margin-top: .3em;
+      width: 35px;
+      margin-bottom: .4em;
+    }
+  }
+}
+
+.block-education-news, .block-mcps-news {
+  //transition: height 2s;
+  height: 310px;
+
+  .block-body {
+    opacity: 1;
+    transition: opacity 2s ease-out;
+
+    &.hide {
+      opacity: 0;
+    }
+  }
+
+  .news-title {
+    padding-bottom: 7px;
+    line-height: 1.1em;
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .news-description {
+    text-align: justify;
+    font-size: 75%;
+    line-height: 1.2em;
+    padding-bottom: 7px;
+
+  }
+
+  .news-date {
+    font-size: 60%;
+    opacity: 0.6;
+    text-align: right;
+    padding-bottom: 5px;
+  }
+}
+
+.block-calendar {
+  height: 100%;
+
+  .calendar-upload {
+    color: rgba(0, 0, 0, .5);
+    text-align: center;
+    margin-top: 50px;
+  }
+
+  .calendar-container {
+    opacity: 1;
+    transition: opacity .5s;
+
+    &.hide {
+      opacity: 0;
+    }
+  }
+
+  .day span {
+    color: rgba(0, 0, 0, .5)
+  }
+
+  .calendar-items {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    color: rgba(0, 0, 0, .7);
+
+    .calendar-item {
+      padding: .5em;
+      background: rgba(100, 100, 100, .2);
+      margin-bottom: .5em;
+      border-radius: 4px;
+      clear: left;
+      border-left: 5px solid #0078d4;
+
+      .calendar-item_title {
+        margin-bottom: .35em;
+        font-weight: bold;
+      }
+
+      .calendar-item_header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: .25em;
+        height: 50px;
+
+        .calendar-item_time {
+          font-weight: bold;
+        }
+
+        .calendar-item-office {
+          font-size: .8em;
+          border: 1px solid #105d7f;
+          background: #bdccd4;
+          padding: 5px;
+          border-radius: 10px;
+          text-align: center;
+
+          .calendar-item-office_label {
+            color: rgba(0, 0, 0, 0.4);
+            font-size: .7em;
+          }
+        }
+      }
+    }
+  }
+}
+.block-travel-time {
+  .travel-time-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    font-size: 70%;
+
+    .travel-time-item {
+      width: 45%;
+      margin-bottom: .5em;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.4);
+      padding: 10px;
+
+      .travel-name {
+        color: $color-red;
+      }
+
+      .travel-distance, .travel-duration {
+        color: rgba(0, 0, 0, .7);
+      }
+    }
+  }
+}

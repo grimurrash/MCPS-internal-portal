@@ -14,4 +14,15 @@ use App\Http\Controllers\ApplicationController;
 |
 */
 
+Route::get('/dakboard/{id?}', [ManagerBoardController::class, 'show']);
+//https://portal.cpvs.moscow/board/microsoft/signin
+
+Route::group(['prefix' => 'board'],function () {
+    Route::group(['prefix' => 'microsoft'], function () {
+        Route::get('/signin', [ManagerBoardController::class, 'microsoftSignIn']);
+        Route::get('/signout/{id}', [ManagerBoardController::class, 'microsoftSignOut']);
+        Route::get('callback', [ManagerBoardController::class, 'microsoftCallback']);
+    });
+});
+
 Route::get('/{any}', [ApplicationController::class, 'index'])->where('any', '.*');

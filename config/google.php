@@ -34,6 +34,7 @@ return [
     |
     */
     'developer_key' => env('GOOGLE_DEVELOPER_KEY', ''),
+    'distance_matrix_api_key' => env('GOOGLE_DISTANCE_MATRIX_API_KEY', ''),
 
     /*
     |----------------------------------------------------------------------------

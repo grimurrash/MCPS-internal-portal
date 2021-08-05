@@ -133,5 +133,15 @@ Route::group(['middleware' => 'auth:api'], function () {
     });
 });
 
+Route::group(['prefix' => 'scripts'], function () {
+    Route::get('importFounderRepresentative', [ScriptController::class, 'importFounderRepresentative']);
+});
+
+Route::group(['prefix' => 'board'],function () {
+    Route::get('yandexWeatherApi', [ManagerBoardController::class, 'yandexWeather']);
+    Route::get('getNews', [ManagerBoardController::class, 'getNews']);
+    Route::get('getCalendar', [ManagerBoardController::class, 'getCalendar']);
+    Route::get('getDistance', [ManagerBoardController::class, 'getDistanceFromBoardBeforeOthersBuildings']);
+});
 
 

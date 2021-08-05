@@ -58,6 +58,7 @@ mix
   .options({
     postCss: [require('autoprefixer'), require('postcss-rtl')],
   })
+  .sass('resources/sass/board.scss', 'public/css')
 
 mix.webpackConfig({
   output: {
