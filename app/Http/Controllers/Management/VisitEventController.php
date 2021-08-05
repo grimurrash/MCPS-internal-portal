@@ -324,11 +324,10 @@ class VisitEventController extends Controller
                 $eventType = $row[3];
             }
             if ($employeeId === null || $employeeId === '' || $eventType === '') continue;
-
             $eventId = $row[0];
             $eventTimestamp = Carbon::parse($row[1]);
 
-            $searchEvent = $events->where('eventId', $eventId)->first();
+            $searchEvent = $events->where('eventId', $eventId)->where('eventType', $eventType)->first();
             if ($searchEvent === null) {
                 try {
                     $createEvents[] = [
@@ -341,7 +340,6 @@ class VisitEventController extends Controller
                 } catch (Exception $exception) {
                     $errorCount++;
                 }
-
             }
         }
         VisitEvent::query()->insert($createEvents);
@@ -356,9 +354,9 @@ class VisitEventController extends Controller
      * @param $eventId
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, $eventId): JsonResponse
+    public function update(Request $request, $id): JsonResponse
     {
-        $event = VisitEvent::query()->find($eventId);
+        $event = VisitEvent::query()->find($id);
         if ($event === null) return response()->json(['error' => ['fullName' => 'Событие не найдено']], 404);
 
         $event->update([

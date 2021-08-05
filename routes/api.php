@@ -9,6 +9,8 @@ use App\Http\Controllers\Management\DepartmentController;
 use App\Http\Controllers\Management\EmployeeController;
 use App\Http\Controllers\Management\UserController;
 use App\Http\Controllers\Management\VisitEventController;
+use App\Http\Controllers\ManagerBoardController;
+use App\Http\Controllers\ScriptController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
@@ -35,8 +37,8 @@ Route::group(['prefix' => 'auth'], function () {
     });
 });
 
-Route::group(['middleware' => 'auth:api'], function () {
 
+Route::group(['middleware' => 'auth:api'], function () {
     Route::group(['prefix' => 'account-setting'], function () {
         Route::get('data', [AccountSettingController::class, 'data']);
         Route::group(['middleware' => 'logger:account-setting'], function () {
