@@ -11,6 +11,7 @@
           integrity="sha384-yJpxAFV0Ip/w63YkZfDWDTU6re/Oc3ZiVqMa97pi8uPt92y0wzeK3UFM2yQRhEom"
           crossorigin="anonymous">
     <link rel="stylesheet" href="{{asset('css/board.css')}}">
+    <link rel="shortcut icon" href="{{ asset('favicon.png') }}">
 </head>
 <body class="font-large">
 <header class="header">
@@ -376,7 +377,7 @@
 
   updateCalendar()
 
-  // update Calendar
+  // update Building Distance
   function updateBuildingDistance() {
     fetch(`https://portal.cpvs.moscow/api/board/getDistance?boardId=${boardId}`)
         .then(res => res.json())

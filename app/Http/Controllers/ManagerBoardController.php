@@ -55,7 +55,7 @@ class ManagerBoardController extends Controller
     public function yandexWeather(Request $request): Response
     {
         $url = 'https://api.weather.yandex.ru/v2/forecast';
-        $apiKey = '0fef3594-79c1-4dab-8799-05af6745162c';
+        $apiKey = '6fd4767d-5e31-47cd-9c59-c9b3f07f06a5';
 
         return Http::withHeaders([
             'content-type' => 'application/json',
@@ -147,7 +147,7 @@ class ManagerBoardController extends Controller
         $board = Board::find($request->input('boardId'));
         $graph = $this->getGraph($board);
 
-        $startDateTime = Carbon::today()->format('Y-m-d');
+        $startDateTime = Carbon::now()->format('Y-m-d');
         $endDateTime = Carbon::today()->addDays(7)->format('Y-m-d');
         $calendar = $graph->createRequest('GET', "/me/calendarview?startdatetime=$startDateTime&enddatetime=$endDateTime")
             ->setReturnType(Model\Calendar::class)
@@ -155,9 +155,10 @@ class ManagerBoardController extends Controller
         $data = [];
         foreach ($calendar as $item) {
             $item = $item->getProperties();
+            $endDate = Carbon::parse($item['end']['dateTime'])->addHours(3);
+            if ($endDate < Carbon::now()) continue;
 
             $startDate = Carbon::parse($item['start']['dateTime'])->addHours(3);
-            $endDate = Carbon::parse($item['end']['dateTime'])->addHours(3);
             $title = $item['subject'];
             $location = $item['location']['displayName'];
             $data[$startDate->format('Y-m-d')][] = [
@@ -173,7 +174,6 @@ class ManagerBoardController extends Controller
 
     public function microsoftSignIn(): RedirectResponse
     {
-//        dd(config('azure.appId'));
         // Initialize the OAuth client
         $oauthClient = new GenericProvider([
             'clientId' => config('azure.appId'),

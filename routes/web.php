@@ -29,10 +29,9 @@ Route::prefix('questions')->group(function () {
 });
 
 Route::get('/dakboard/{id?}', [ManagerBoardController::class, 'show']);
-//https://portal.cpvs.moscow/board/microsoft/signin
-
-Route::group(['prefix' => 'board'],function () {
+Route::group(['prefix' => 'board'], function () {
     Route::group(['prefix' => 'microsoft'], function () {
+        //https://portal.cpvs.moscow/board/microsoft/signin
         Route::get('/signin', [ManagerBoardController::class, 'microsoftSignIn']);
         Route::get('/signout/{id}', [ManagerBoardController::class, 'microsoftSignOut']);
         Route::get('callback', [ManagerBoardController::class, 'microsoftCallback']);
