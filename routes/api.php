@@ -10,10 +10,12 @@ use App\Http\Controllers\Management\EmployeeController;
 use App\Http\Controllers\Management\UserController;
 use App\Http\Controllers\Management\VisitEventController;
 use App\Http\Controllers\ManagerBoardController;
+use App\Http\Controllers\QuestionFormController;
 use App\Http\Controllers\ScriptController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
+Route::get('question/answer/{id}/text', [QuestionFormController::class, 'answerText']);
 
 //  Auth
 Route::group(['prefix' => 'auth'], function () {

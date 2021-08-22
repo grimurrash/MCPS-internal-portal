@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ManagerBoardController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\QuestionFormController;
 use App\Http\Controllers\ApplicationController;
 
 /*
@@ -14,6 +15,18 @@ use App\Http\Controllers\ApplicationController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::prefix('questions')->group(function () {
+    Route::prefix('answer')->group(function () {
+        Route::get('/{id}', [QuestionFormController::class, 'answerShow'])->name('question.answer.show');
+        Route::post('/{id}', [QuestionFormController::class, 'answerEnd'])->name('question.answer.end');
+    });
+
+    Route::prefix('ask')->group(function () {
+        Route::get('/', [QuestionFormController::class, 'askShow'])->name('question.ask.show');
+        Route::post('/', [QuestionFormController::class, 'askEnd'])->name('question.ask.end');
+    });
+});
 
 Route::get('/dakboard/{id?}', [ManagerBoardController::class, 'show']);
 //https://portal.cpvs.moscow/board/microsoft/signin
