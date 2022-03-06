@@ -2,11 +2,11 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 
 //  Routes
-import apps from '@/router/routes/apps'
-import management from '@/router/routes/management'
-import documents from '@/router/routes/documents'
-import pages from '@/router/routes/pages'
-import others from '@/router/routes/others'
+import apps from '@/router/apps'
+import management from '@/router/management'
+import documents from '@/router/documents'
+import pages from '@/router/pages'
+import others from '@/router/others'
 
 //  Auth and Acl lib
 import { canNavigate } from '@/libs/acl/routeProtection'

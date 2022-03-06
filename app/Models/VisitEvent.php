@@ -42,6 +42,20 @@ class VisitEvent extends Model
         return false;
     }
 
+    public static function isLateLeft($exitTime, $endOfTheDay): bool
+    {
+        $endOfTheDay = explode(':', $endOfTheDay);
+        if ($exitTime == null) return true;
+        $exitTimeHour = (int)$exitTime->format('H');
+        $exitTimeMinutes = (int)$exitTime->format('i');
+        if ($exitTimeHour < (int)$endOfTheDay[0] ||
+            ($exitTimeHour === (int)$endOfTheDay[0] && $exitTimeMinutes < $endOfTheDay[1]))
+            return true;
+
+        return false;
+    }
+
+
     /**
      * @param $exitTime
      * @param $entranceTime

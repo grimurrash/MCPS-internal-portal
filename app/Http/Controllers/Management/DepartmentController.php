@@ -124,7 +124,6 @@ class DepartmentController extends Controller
                 $createCount++;
                 continue;
             }
-
             if ($searchDepartment->name !== $row[1] || $searchDepartment->parent_id !== $row[2]) {
                 $searchDepartment->name = $row[1];
                 $searchDepartment->parent_id = $row[2];

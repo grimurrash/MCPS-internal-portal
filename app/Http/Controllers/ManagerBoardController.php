@@ -55,7 +55,7 @@ class ManagerBoardController extends Controller
     public function yandexWeather(Request $request): Response
     {
         $url = 'https://api.weather.yandex.ru/v2/forecast';
-        $apiKey = '6fd4767d-5e31-47cd-9c59-c9b3f07f06a5';
+        $apiKey = '2675f698-a3c4-415b-84af-c70fb5051674';
 
         return Http::withHeaders([
             'content-type' => 'application/json',
@@ -129,6 +129,26 @@ class ManagerBoardController extends Controller
             ],
             'nextNumber' => $nextNumber
         ]);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getAllNews(Request $request): JsonResponse
+    {
+        $url = $request->input('newsUrl', '');
+        if ($url === '') return response()->json()->setStatusCode(400);
+        $rss = file_get_contents($url);
+        $xml = new SimpleXMLElement($rss, LIBXML_NOCDATA);
+        $resultArray = [];
+        foreach ($xml->channel->item as $post) {
+            $resultArray[] = [
+                'title' => (string)$post->title,
+                'description' => (string)$post->description,
+                'link' => (string)$post->link,
+            ];
+        }
+        return response()->json($resultArray);
     }
 
     private function getGraph($board): Graph

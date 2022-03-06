@@ -161,11 +161,10 @@ import {
 } from 'bootstrap-vue'
 import axios from '@/libs/axios'
 import ToastificationContent from '@core/components/toastification/ToastificationContent.vue'
+import flatPickr from 'vue-flatpickr-component'
 import vSelect from 'vue-select'
 import { ref, watch, computed } from '@vue/composition-api'
 import { useToast } from 'vue-toastification/composition'
-// eslint-disable-next-line import/no-extraneous-dependencies
-import FileDownload from 'js-file-download'
 
 export default {
   components: {
@@ -177,6 +176,7 @@ export default {
     BFormCheckbox,
     BCardText,
     vSelect,
+    flatPickr,
   },
   setup() {
     const toast = useToast()
@@ -357,4 +357,5 @@ export default {
 
 <style lang="scss">
 @import '~@core/scss/vue/libs/vue-select.scss';
+@import '~@core/scss/vue/libs/vue-flatpicker.scss';
 </style>

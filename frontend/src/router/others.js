@@ -1,5 +1,43 @@
 export default [
   {
+    path: '/organizer/sport',
+    name: 'organizer-sport',
+    component: () => import('@/views/apps/organizers/sport/OrganizerList.vue'),
+    meta: {
+      resource: 'sport-department',
+      action: 'write',
+      pageTitle: 'Органайзер отдела',
+      breadcrumb: [
+        {
+          text: 'Органайзер',
+        },
+        {
+          text: 'Отдел спорта',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
+    path: '/management/word-cloud/list',
+    name: 'management-word-cloud-list',
+    component: () => import('@/views/managements/wordCloud/WordCloudList'),
+    meta: {
+      resource: 'mcps-events',
+      action: 'read',
+      pageTitle: 'Облако слов',
+      breadcrumb: [
+        {
+          text: 'Мероприятия',
+        },
+        {
+          text: 'Облако слов',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
     path: '/login',
     name: 'auth-login',
     component: () => import('@/views/others/authentication/Login.vue'),

@@ -15,17 +15,21 @@ class VisitEventResource extends JsonResource
      */
     public function toArray($request): array
     {
+        $entrance_time = $this['entrance_time'] === null ? '-' : $this['entrance_time']->format('H:i');
+        $exit_time = $this['exit_time'] === null ? '-' : $this['exit_time']->format('H:i');
+        $isLateArrival = VisitEvent::isLateArrival($this['entrance_time'], $this['startOfTheDay']);
+
         return [
             'employee' => $this['employee']->fullName,
             'employee_id' => $this['employee_id'],
             'department' => $this['employee']->department->name,
             'department_id' => $this['employee']->department_id,
             'date' => $this['date']->format('d.m.Y'),
-            'entrance_time' => $this['entrance_time'] === null ? '-' : $this['entrance_time']->format('H:i'),
-            'exit_time' => $this['exit_time'] === null ? '-' : $this['exit_time']->format('H:i'),
+            'entrance_time' => $entrance_time,
+            'exit_time' => $exit_time,
             'startOfTheDay' => $this['startOfTheDay'],
             'endOfTheDay' => $this['endOfTheDay'],
-            'isLateArrival' => VisitEvent::isLateArrival($this['entrance_time'], $this['startOfTheDay'])
+            'isLateArrival' => $isLateArrival,
         ];
     }
 }

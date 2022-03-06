@@ -270,7 +270,7 @@
 
   // update education news block
   let nextEducationNewsNumber = 0;
-  const educationNewsUrl = 'https://www.edu.ru/news/glavnye-novosti/feed.rss'
+  const educationNewsUrl = 'https://edu.ru/news/glavnye-novosti/feed.rss'
 
   function updateEducationNews() {
     fetch(`https://portal.cpvs.moscow/api/board/getNews?number=${nextEducationNewsNumber}&newsUrl=${educationNewsUrl}`,)

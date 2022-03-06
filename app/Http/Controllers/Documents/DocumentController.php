@@ -2,19 +2,21 @@
 
 namespace App\Http\Controllers\Documents;
 
+use App\Helper\ZipHelper;
 use App\Http\Controllers\Controller;
 use App\Models\DocumentTemplate;
 use Carbon\Carbon;
 use RuntimeException;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use ZipArchive;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpWord\TemplateProcessor;
 
 class DocumentController extends Controller
 {
+
+
     /**
      * @param \Illuminate\Http\Request $request
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
@@ -48,9 +50,13 @@ class DocumentController extends Controller
         $templateFilePath = "$tempDir/$templateFileName";
         $currentUserTempDir = $tempDir . '/user' . $userId . '-to-' . $dateTime . '/';
 
-        if (!is_dir($currentUserTempDir)) {
-            !mkdir($currentUserTempDir);
+        if (is_dir($currentUserTempDir)) {
+            ZipHelper::rrmdir($currentUserTempDir);
         }
+        if (!mkdir($currentUserTempDir) && !is_dir($currentUserTempDir)) {
+            throw new RuntimeException(sprintf('Directory "%s" was not created', $currentUserTempDir));
+        }
+
         $itemKeys = [];
         foreach ($list as $index => $row) {
             if ($index === 0) {
@@ -65,32 +71,23 @@ class DocumentController extends Controller
                 if ($key === null) continue;
                 $word->setValue($key, $row[$colNum] ?? '');
             }
-            $filename = $currentUserTempDir . mb_substr(str_replace("/", ',', $row[0]), 0, 50);
+            $filename = str_replace("/", ',', $row[0]);
+            $dir = stristr($filename, ',,,', true);
+            if ($dir !== '') {
+                $dir = $currentUserTempDir . '/' . $dir;
+                if (!file_exists($dir)) {
+                    mkdir($dir);
+                }
+            }
+            $filename = str_replace(',,,', '/', $filename);
+            $filename = $currentUserTempDir . mb_substr($filename, 0, 80);
             $word->saveAs($filename . '.docx');
         }
 
-        $zip = new ZipArchive();
         $zipArchiveFile = $tempDir . '/user' . $userId . '.zip';
 
-        if (file_exists($zipArchiveFile)) {
-            unlink($zipArchiveFile);
-        }
-
-        if ($zip->open($zipArchiveFile,
-                ZipArchive::CREATE) === TRUE) {
-            $dir = opendir($currentUserTempDir);
-            while ($d = readdir($dir)) {
-                if ($d === '.' || $d === '..') continue;
-                $zip->addFile($currentUserTempDir . $d, $d);
-            }
-            $zip->close();
-        }
-        $dir = opendir($currentUserTempDir);
-        while ($d = readdir($dir)) {
-            if ($d === '.' || $d === '..') continue;
-            unlink($currentUserTempDir . $d);
-        }
-        rmdir($currentUserTempDir);
+        ZipHelper::zip($currentUserTempDir, $zipArchiveFile);
+        ZipHelper::rrmdir($currentUserTempDir);
         unlink($templateFilePath);
         unlink($loadFilePath);
         return response()->download($zipArchiveFile)->deleteFileAfterSend();
@@ -111,7 +108,6 @@ class DocumentController extends Controller
         $userId = $request->user()->id;
         $loadFile = $request->file('file');
         $dateTime = gmdate('d-m-Y-H-i');
-        $lists = [];
 
         $tempDir = storage_path('app/public/documents/temp');
 
@@ -127,7 +123,9 @@ class DocumentController extends Controller
         $template = DocumentTemplate::find($request->input('template_id'));
         $templateFilePath = storage_path('app/public') . $template->filePath;
         $currentUserTempDir = $tempDir . '/user' . $userId . 'to-' . $dateTime . '/';
-
+        if (is_dir($currentUserTempDir)) {
+            ZipHelper::rrmdir($currentUserTempDir);
+        }
         if (!mkdir($currentUserTempDir) && !is_dir($currentUserTempDir)) {
             throw new RuntimeException(sprintf('Directory "%s" was not created', $currentUserTempDir));
         }
@@ -147,7 +145,16 @@ class DocumentController extends Controller
                     if ($key === null) continue;
                     $word->setValue($key, $row[$colNum] ?? '');
                 }
-                $filename = $currentUserTempDir . mb_substr(str_replace("/", ',', $row[0]), 0, 50);
+                $filename = str_replace("/", ',', $row[0]);
+                $dir = stristr($filename, ',,,', true);
+                if ($dir !== '') {
+                    $dir = $currentUserTempDir . '/' . $dir;
+                    if (!file_exists($dir)) {
+                        mkdir($dir);
+                    }
+                }
+                $filename = str_replace(',,,', '/', $filename);
+                $filename = $currentUserTempDir . mb_substr($filename, 0, 80);
                 $word->saveAs($filename . '.docx');
                 continue;
             }
@@ -161,7 +168,17 @@ class DocumentController extends Controller
                 $word->setValue($key, $row[$colNum] ?? '');
                 $word->setValue($key . '1', $tempRow[$colNum] ?? '');
             }
-            $filename = $currentUserTempDir . mb_substr(str_replace('/', ',', $row[0] . ' и ' . $tempRow[0]), 1, 50);
+
+            $filename = str_replace("/", ',', $row[0] . ' и ' . $tempRow[0]);
+            $dir = stristr($filename, ',,,', true);
+            if ($dir !== '') {
+                $dir = $currentUserTempDir . '/' . $dir;
+                if (!file_exists($dir)) {
+                    mkdir($dir);
+                }
+            }
+            $filename = str_replace(',,,', '/', $filename);
+            $filename = $currentUserTempDir . mb_substr($filename, 0, 80);
             $word->saveAs($filename . '.docx');
             $tempRow = null;
         }
@@ -176,28 +193,11 @@ class DocumentController extends Controller
             $word->saveAs($filename . '.docx');
         }
 
-        $zip = new ZipArchive();
         $zipArchiveFile = $tempDir . '/user' . $userId . '.zip';
 
-        if (file_exists($zipArchiveFile)) {
-            unlink($zipArchiveFile);
-        }
+        ZipHelper::zip($currentUserTempDir, $zipArchiveFile);
+        ZipHelper::rrmdir($currentUserTempDir);
 
-        if ($zip->open($zipArchiveFile,
-                ZipArchive::CREATE) === TRUE) {
-            $dir = opendir($currentUserTempDir);
-            while ($d = readdir($dir)) {
-                if ($d === '.' || $d === '..') continue;
-                $zip->addFile($currentUserTempDir . $d, $d);
-            }
-            $zip->close();
-        }
-        $dir = opendir($currentUserTempDir);
-        while ($d = readdir($dir)) {
-            if ($d === '.' || $d === '..') continue;
-            unlink($currentUserTempDir . $d);
-        }
-        rmdir($currentUserTempDir);
         unlink($loadFilePath);
         return response()->download($zipArchiveFile)->deleteFileAfterSend();
     }

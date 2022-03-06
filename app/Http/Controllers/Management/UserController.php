@@ -17,6 +17,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Exception;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class UserController extends Controller
 {
@@ -127,6 +131,95 @@ class UserController extends Controller
             'status' => true,
             'user_id' => $user->id
         ])->setStatusCode(200);
+    }
+
+    public function listStore(Request $request)
+    {
+        $loadFile = $request->file('file');
+        $loadFileName = 'temp/userListStore.' . $loadFile->getClientOriginalExtension();
+        Storage::put($loadFileName, file_get_contents($loadFile->getRealPath()));
+
+        $loadFilePath = storage_path('app/public') . '/' . $loadFileName;
+
+        $excel = IOFactory::load($loadFilePath);
+        $worksheet = $excel->getActiveSheet();
+        $loadDataList = $worksheet->toArray();
+        $excel->disconnectWorksheets();
+        unset($excel);
+        unlink($loadFilePath);
+
+        $permission_id = $request->input('permission_id', null);
+        $role_id = $request->input('role_id', 1);
+
+        $role = Role::find($role_id);
+        $permission = null;
+        if ($permission_id !== null) {
+            $permission = Permission::find($permission_id);
+        }
+
+        $createUsers = [];
+        foreach ($loadDataList as $index => $userData) {
+            if ($index < 1) continue;
+            $fullName = trim($userData[0]);
+            $email = trim($userData[1]);
+            $user = User::where('email', $email)->first();
+
+            if ($user !== null) {
+                if ($permission != null && !$user->permissions->contains($permission)) {
+                    $user->permissions()->attach($permission);
+                }
+                $createUsers[] = [
+                    'status' => 'Существует',
+                    'email' => $email,
+                    'fullName' => $fullName,
+                    'password' => ''
+                ];
+            } else {
+                $password = explode('@', $email)[0] . Carbon::today()->format('dmyHi');
+                $user = User::create([
+                    'fullName' => $fullName,
+                    'email' => $email,
+                    'password' => bcrypt($password),
+                    'role_id' => $role_id
+                ]);
+                $user->permissions()->attach($role->permissions);
+                if ($permission != null) {
+                    $user->permissions()->attach($permission);
+                }
+                $createUsers[] = [
+                    'status' => 'Зарегистрирован',
+                    'email' => $email,
+                    'fullName' => $fullName,
+                    'password' => $password
+                ];
+            }
+        }
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setCellValue('A1', 'ФИО')
+            ->setCellValue('B1', 'Почта')
+            ->setCellValue('C1', 'Пароль')
+            ->setCellValue('D1', 'Стьатус');
+        $row = 2;
+        foreach ($createUsers as $createInfo) {
+            $sheet->setCellValue('A' . $row, $createInfo['fullName']);
+            $sheet->setCellValue('B' . $row, $createInfo['email']);
+            $sheet->setCellValue('C' . $row, $createInfo['password']);
+            $sheet->setCellValue('D' . $row, $createInfo['status']);
+            $row++;
+        }
+        foreach (range('A', 'D') as $columnID) {
+            $sheet->getColumnDimension($columnID)->setAutoSize(true);
+        }
+        $tempPath = storage_path('app/public/temp/importUserList.xlsx');
+        try {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save($tempPath);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()]);
+        }
+        $spreadsheet->disconnectWorksheets();
+        return response()->download($tempPath)->deleteFileAfterSend();
     }
 
 

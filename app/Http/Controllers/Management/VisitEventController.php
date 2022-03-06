@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Management;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BreakEventResource;
 use App\Http\Resources\VisitEventResource;
+use App\Models\Employee;
 use App\Models\VisitEvent;
 use Carbon\Carbon;
 use Exception;
@@ -17,12 +18,13 @@ use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class VisitEventController extends Controller
 {
     /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @param Request $request
+     * @return JsonResponse
      */
     public function index(Request $request): JsonResponse
     {
@@ -84,14 +86,38 @@ class VisitEventController extends Controller
                 });
                 $entranceTimeEvent = $employeeEvents->firstWhere('eventType', VisitEvent::EventType_Entrance);
                 $exitTimeEvent = $employeeEvents->where('eventType', VisitEvent::EventType_Exit)->last();
+
+                $entranceTime = $entranceTimeEvent === null ? null : Carbon::parse($entranceTimeEvent->eventTime);
+                $exitTime = $exitTimeEvent === null ? null : Carbon::parse($exitTimeEvent->eventTime);
+
+                $startOfTheDay = $employee->parseTime($employee->startOfTheDay);
+
+                if ($employee->department_id == 20) {
+                    if ($entranceTimeEvent != null && VisitEvent::isLateArrival($entranceTime, $startOfTheDay)) {
+                        $entranceTime->hour(8);
+                        $entranceTime->minute(rand(50, 59));
+                        $entranceTimeEvent->update([
+                            'eventTime' => $entranceTime
+                        ]);
+                    }
+
+                    if ($exitTimeEvent != null && VisitEvent::isLateLeft($exitTime, '16:45')) {
+                        $exitTime->hour(17);
+                        $exitTime->minute(rand(0, 59));
+                        $exitTimeEvent->update([
+                            'eventTime' => $exitTime
+                        ]);
+                    }
+                }
+
                 $eventList->push([
                     'date' => $entranceTimeEvent === null ?
                         Carbon::parse($exitTimeEvent->eventTime) : Carbon::parse($entranceTimeEvent->eventTime),
                     'employee_id' => $employee_id,
                     'employee' => $employee,
-                    'entrance_time' => $entranceTimeEvent === null ? null : Carbon::parse($entranceTimeEvent->eventTime),
-                    'exit_time' => $exitTimeEvent === null ? null : Carbon::parse($exitTimeEvent->eventTime),
-                    'startOfTheDay' => $employee->parseTime($employee->startOfTheDay),
+                    'entrance_time' => $entranceTime,
+                    'exit_time' => $exitTime,
+                    'startOfTheDay' => $startOfTheDay,
                     'endOfTheDay' => $employee->parseTime($employee->endOfTheDay),
                 ]);
             }
@@ -147,8 +173,8 @@ class VisitEventController extends Controller
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @param Request $request
+     * @return JsonResponse
      */
     public function breakEvent(Request $request): JsonResponse
     {
@@ -278,8 +304,8 @@ class VisitEventController extends Controller
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @param Request $request
+     * @return JsonResponse
      */
     public function import(Request $request): JsonResponse
     {
@@ -309,7 +335,16 @@ class VisitEventController extends Controller
         unlink($filePath);
 
         $isTodayTemplate = !($list[2][3] === 'Вход' || $list[2][3] === 'Выход' || $list[2][3] === '');
-        $events = VisitEvent::all();
+        $minDate = "2080-12-30 21:21:21";
+        foreach ($list as $item) {
+            if ($item[1] === null) continue;
+            $minDate = min($minDate, $item[1]);
+        }
+        $events = VisitEvent::query()->whereDate('eventTime', '>=', Carbon::parse($minDate)->format('Y-m-d'))->get();
+        $employees = Employee::all();
+        $employeesArr = [];
+        foreach ($employees as $employee)
+            $employeesArr[$employee->id] = $employee->id;
         $createCount = 0;
         $errorCount = 0;
         $createEvents = [];
@@ -323,17 +358,23 @@ class VisitEventController extends Controller
                 $employeeId = trim((string)$row[5]);
                 $eventType = $row[3];
             }
-            if ($employeeId === null || $employeeId === '' || $eventType === '') continue;
-            $eventId = $row[0];
-            $eventTimestamp = Carbon::parse($row[1]);
+            if (empty($employeeId) || $eventType === '') continue;
+            $eventId = (int)$row[0];
 
-            $searchEvent = $events->where('eventId', $eventId)->where('eventType', $eventType)->first();
-            if ($searchEvent === null) {
+            $searchEvent = $events->contains(function ($val) use ($eventId, $eventType) {
+                return $val->eventId === $eventId && $val->eventType === $eventType;
+            });
+
+            if (!$searchEvent) {
+                if (!isset($employeesArr[$employeeId])) {
+                    $errorCount++;
+                    continue;
+                }
                 try {
                     $createEvents[] = [
                         'employee_id' => $employeeId,
                         'eventId' => $eventId,
-                        'eventTime' => $eventTimestamp,
+                        'eventTime' => Carbon::parse($row[1]),
                         'eventType' => $eventType
                     ];
                     $createCount++;
@@ -350,9 +391,9 @@ class VisitEventController extends Controller
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @param $eventId
-     * @return \Illuminate\Http\JsonResponse
+     * @param Request $request
+     * @param $id
+     * @return JsonResponse
      */
     public function update(Request $request, $id): JsonResponse
     {
@@ -367,8 +408,8 @@ class VisitEventController extends Controller
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @param Request $request
+     * @return JsonResponse|BinaryFileResponse
      */
     public function exportAttendance(Request $request)
     {

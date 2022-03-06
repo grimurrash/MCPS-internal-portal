@@ -4,18 +4,25 @@ use App\Http\Controllers\AccountSettingController;
 use App\Http\Controllers\Documents\DocumentController;
 use App\Http\Controllers\Documents\DocumentTemplateController;
 use App\Http\Controllers\Documents\DocumentTypeController;
+use App\Http\Controllers\Events\WordCloudController;
 use App\Http\Controllers\FileStorageController;
 use App\Http\Controllers\Management\DepartmentController;
 use App\Http\Controllers\Management\EmployeeController;
 use App\Http\Controllers\Management\UserController;
 use App\Http\Controllers\Management\VisitEventController;
 use App\Http\Controllers\ManagerBoardController;
+use App\Http\Controllers\Organizers\OrganizerController;
 use App\Http\Controllers\QuestionFormController;
 use App\Http\Controllers\ScriptController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
 Route::get('question/answer/{id}/text', [QuestionFormController::class, 'answerText']);
+
+Route::prefix('word-cloud')->group(function () {
+    Route::get('/{id}/settings', [WordCloudController::class, 'getWordCloudSetting']);
+    Route::get('/{id}/answer', [WordCloudController::class, 'getWordCloudAnswer']);
+});
 
 //  Auth
 Route::group(['prefix' => 'auth'], function () {
@@ -79,6 +86,30 @@ Route::group(['middleware' => 'auth:api'], function () {
         });
     });
 
+    Route::prefix('organizer')->group(function () {
+        Route::get('/{id}',[OrganizerController::class, 'show']);
+        Route::group(['middleware' => ['logger:organizer']], function () {
+            Route::post('/menu', [OrganizerController::class, 'storeOrganizerMenu']);
+            Route::post('/menu/{id}', [OrganizerController::class, 'updateOrganizerMenu']);
+            Route::delete('/menu/{id}', [OrganizerController::class, 'deleteOrganizerMenu']);
+            Route::post('/item', [OrganizerController::class, 'storeOrganizerItem']);
+            Route::post('/item/{id}', [OrganizerController::class, 'updateOrganizerItem']);
+            Route::delete('/item/{id}', [OrganizerController::class, 'deleteOrganizerItem']);
+        });
+    });
+
+    // MCPS Events
+    Route::group(['prefix' => 'events'], function () {
+        Route::group(['prefix' => 'wordcloud'], function () {
+            Route::get('/', [WordCloudController::class, 'index']);
+            Route::post('/', [WordCloudController::class, 'store']);
+            Route::get('{id}',[WordCloudController::class, 'show']);
+            Route::post('/{id}', [WordCloudController::class, 'update']);
+            Route::delete('/{id}', [WordCloudController::class, 'delete']);
+            Route::post('/{id}/clear',[WordCloudController::class, 'clear']);
+        });
+    });
+
     //  Management
     Route::group(['prefix' => 'management'], function () {
         Route::get('/rolesAndPermissions', [UserController::class, 'selectOptions']);
@@ -94,6 +125,7 @@ Route::group(['middleware' => 'auth:api'], function () {
 
             Route::group(['middleware' => 'logger:management_users'], function () {
                 Route::post('/', [UserController::class, 'store']);
+                Route::post('/importList', [UserController::class, 'listStore']);
                 Route::post('/{id}', [UserController::class, 'update']);
                 Route::delete('/{id}', [UserController::class, 'destroy']);
             });
@@ -139,11 +171,13 @@ Route::group(['middleware' => 'auth:api'], function () {
 
 Route::group(['prefix' => 'scripts'], function () {
     Route::get('importFounderRepresentative', [ScriptController::class, 'importFounderRepresentative']);
+    Route::get('importDirectorGTOData', [ScriptController::class, 'importDirectorGTOData']);
 });
 
-Route::group(['prefix' => 'board'],function () {
+Route::group(['prefix' => 'board'], function () {
     Route::get('yandexWeatherApi', [ManagerBoardController::class, 'yandexWeather']);
     Route::get('getNews', [ManagerBoardController::class, 'getNews']);
+    Route::get('getAllNews', [ManagerBoardController::class, 'getAllNews']);
     Route::get('getCalendar', [ManagerBoardController::class, 'getCalendar']);
     Route::get('getDistance', [ManagerBoardController::class, 'getDistanceFromBoardBeforeOthersBuildings']);
 });

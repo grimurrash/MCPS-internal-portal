@@ -7,13 +7,17 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link rel="shortcut icon" href="{{ asset('favicon.png') }}">
     <style>
         body, html {
             margin: 0;
             height: 100%;
             color: rgb(68, 68, 68);
             font-family: Lato, Helvetica, Arial, serif;
+        }
+
+        .fr-box {
+            display: flex;
+            align-items: center;
         }
 
         main {
@@ -77,6 +81,13 @@
         [role="application"] .fr-view ul {
             display: flex !important;
             list-style: none;
+        }
+
+        .fr-view p.logo{
+            text-align: center;
+        }
+        .fr-view p.logo img {
+            max-width: 90%;
         }
 
 
@@ -162,8 +173,38 @@
             z-index: 10000;
             content: "";
         }
+        .container>* {
+            z-index: 10;
+            position: relative;
+        }
+
+        .container>.row {
+            display: flex;
+            align-items: center;
+        }
+
+        .container-background {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background: url("/public/images/backgroud.svg") no-repeat 50%;
+            background-size: cover;
+            z-index: 1;
+            opacity: 1;
+        }
 
         @media only screen and (max-width: 767px) {
+            main {
+                display: flex;
+                align-items: center;
+            }
+
+            .fr-view p.logo img {
+                max-width: 60%;
+            }
+
             form .input-group {
                 display: flex;
                 flex-direction: column;
@@ -177,7 +218,12 @@
             form .input-group .input-group-append {
                 text-align: center;
             }
+        }
 
+        @media only screen and (max-width: 500px) {
+            .fr-view p.logo img {
+                max-width: 80%;
+            }
         }
     </style>
     <title>@yield('title')</title>
@@ -185,17 +231,18 @@
 <body>
 <main>
     <div class="container">
+        <div class="container-background"></div>
         <div class="row">
-            <div class="col-12 col-md-6 m-md-auto ml-lg-0 col-lg-5 fr-box">
-                <div class="fr-wrapper">
-                    <div class="fr-element fr-view">
-                        <p>
-                            <img src="https://cdn.jsdelivr.net/gh/froala/design-blocks@master/dist/imgs//draws/group-chat.svg"
-                                 class="img-fluid" alt="image">
-                        </p>
-                    </div>
-                </div>
-            </div>
+{{--            <div class="col-12 col-md-6 m-md-auto ml-lg-0 col-lg-5 fr-box">--}}
+{{--                <div class="fr-wrapper">--}}
+{{--                    <div class="fr-element fr-view">--}}
+{{--                        <p class="logo">--}}
+{{--                            <img src="{{ asset('images/logo.svg') }}"--}}
+{{--                                 class="img-fluid" alt="image">--}}
+{{--                        </p>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--            </div>--}}
             @yield('content')
         </div>
     </div>

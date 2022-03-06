@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Events\WordCloudController;
 use App\Http\Controllers\ManagerBoardController;
+use App\Http\Controllers\MCPSEventsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\QuestionFormController;
 use App\Http\Controllers\ApplicationController;
@@ -16,10 +18,18 @@ use App\Http\Controllers\ApplicationController;
 |
 */
 
+Route::prefix('word-cloud')->group(function () {
+    Route::get('/{id}', [WordCloudController::class, 'showWordCloudAnswerForm'])->name('wordCloud.answer.show');
+    Route::post('/{id}', [WordCloudController::class, 'saveWordCloudAnswer'])->name('wordCloud.answer.save');
+    Route::get('/{id}/settings', [WordCloudController::class, 'getWordCloudSetting']);
+    Route::get('/{id}/answer', [WordCloudController::class, 'getWordCloudAnswer']);
+});
+
 Route::prefix('questions')->group(function () {
     Route::prefix('answer')->group(function () {
         Route::get('/{id}', [QuestionFormController::class, 'answerShow'])->name('question.answer.show');
         Route::post('/{id}', [QuestionFormController::class, 'answerEnd'])->name('question.answer.end');
+        Route::get('/{id}/clear_tlbantwwwwclear', [QuestionFormController::class, 'clearAnswers']);
     });
 
     Route::prefix('ask')->group(function () {
@@ -35,6 +45,16 @@ Route::group(['prefix' => 'board'], function () {
         Route::get('/signin', [ManagerBoardController::class, 'microsoftSignIn']);
         Route::get('/signout/{id}', [ManagerBoardController::class, 'microsoftSignOut']);
         Route::get('callback', [ManagerBoardController::class, 'microsoftCallback']);
+    });
+});
+
+Route::prefix('events')->group(function () {
+    Route::get('participant/{id}', [MCPSEventsController::class, 'participantQRCode']);
+    Route::prefix('admin')->group(function () {
+        Route::get('set-event-user', [MCPSEventsController::class, 'setEventUser']);
+        Route::get('updateGoogleSheet/{id}', [MCPSEventsController::class, 'updateGoogleSheet']);
+        Route::get('participant/{id}', [MCPSEventsController::class, 'readParticipantQRCode'])->name('events.admin.read');
+        Route::get('participant/{id}/confirmation', [MCPSEventsController::class, 'confirmationParticipant'])->name('events.admin.confirmation');
     });
 });
 

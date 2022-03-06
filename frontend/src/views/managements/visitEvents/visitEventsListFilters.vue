@@ -88,7 +88,7 @@
 
 <script>
 import {
-  BCard, BCardHeader, BCardBody, BRow, BCol, BFormCheckbox, BCardText,
+  BCard, BCardHeader, BCardBody, BRow, BCol, BFormCheckbox,
 } from 'bootstrap-vue'
 import flatPickr from 'vue-flatpickr-component'
 import vSelect from 'vue-select'
@@ -101,7 +101,6 @@ export default {
     BCardHeader,
     BCardBody,
     BFormCheckbox,
-    BCardText,
     flatPickr,
     vSelect,
   },

@@ -1,5 +1,4 @@
 const mix = require('laravel-mix')
-
 /*
  |--------------------------------------------------------------------------
  | Mix Asset Management
@@ -59,11 +58,23 @@ mix
     postCss: [require('autoprefixer'), require('postcss-rtl')],
   })
   .sass('resources/sass/board.scss', 'public/css')
+  .sass('resources/sass/participant.scss', 'public/css')
 
-mix.webpackConfig({
-  output: {
-    publicPath: '/public/',
-    chunkFilename: 'js/chunks/[name].js',
-  },
-})
-mix.setResourceRoot('/public/')
+if (mix.inProduction()) {
+  mix.webpackConfig({
+    output: {
+      publicPath: '/public/',
+      chunkFilename: 'js/chunks/[name].js',
+    },
+  })
+  mix.setResourceRoot('/public/')
+} else {
+  mix.webpackConfig({
+    output: {
+      publicPath: '/public/',
+      chunkFilename: 'js/chunks/[name].[chunkhash].js'
+    }
+  })
+}
+
+

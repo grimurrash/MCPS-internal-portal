@@ -44,7 +44,7 @@ class UserActionsLogger
             } else {
                 $filename = 'user_actions_logger_' . date('d-m-y') . '.log';
                 $dataToLog = 'User id: ' . $request->user()->id . '; fullName: ' . $request->user()->fullName . "\n";
-                $dataToLog .= 'logType: ' . $this->logLevel;
+                $dataToLog .= 'logType: ' . $request->logType;
                 $dataToLog .= 'Time: ' . gmdate('Y-m-d H:i:s') . "\n";
                 $dataToLog .= 'Duration: ' . number_format($endTime - LARAVEL_START, 3) . "\n";
                 $dataToLog .= 'IP Address: ' . $request->ip() . "\n";

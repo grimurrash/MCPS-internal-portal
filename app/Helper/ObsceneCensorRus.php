@@ -34,7 +34,7 @@ class ObsceneCensorRus
     private static $LT_HS = 'ъЪ';
     private static $LT_SS = 'ьЬ';
     private static $LT_Y = 'ыЫ';
-
+    private static $LT_V = 'ВвVvB';
 
     public static $exceptions = array(
         'команд',
@@ -176,6 +176,16 @@ class ObsceneCensorRus
 	\w*[' . self::$LT_Z . '][' . self::$LT_A . self::$LT_O . '][' . self::$LT_L . '][' . self::$LT_U . '][' . self::$LT_P . ']\w* # залупа
 |
 	\w*[' . self::$LT_M . '][' . self::$LT_A . '][' . self::$LT_N . '][' . self::$LT_D . '][' . self::$LT_A . self::$LT_O . ']\w* # манда
+|
+    \w*[' . self::$LT_P . '][' . self::$LT_U . '][' . self::$LT_T . '][' . self::$LT_I . '][' . self::$LT_N . ']\w* # путин
+|
+    [' . self::$LT_V . '][' . self::$LT_O . '][' . self::$LT_R . ']\w* # вор
+|
+    [' . self::$LT_G . '][' . self::$LT_I . '][' . self::$LT_T . '][' . self::$LT_L . '][' . self::$LT_E . '][' . self::$LT_R . '] #гитлер
+    |
+    ['. self::$LT_N .']['. self::$LT_A .']['. self::$LT_V .']['. self::$LT_A .']['. self::$LT_L .']['. self::$LT_SS .']['. self::$LT_N .'] #навальн
+|
+    ['. self::$LT_N .']['. self::$LT_A .']['. self::$LT_V .']['. self::$LT_A .']['. self::$LT_L .']['. self::$LT_N .'] #навалн
 )\b
 /xu', $text, $m);
 

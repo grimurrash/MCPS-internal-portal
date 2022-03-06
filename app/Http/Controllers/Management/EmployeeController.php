@@ -59,15 +59,12 @@ class EmployeeController extends Controller
 
     public function importPhoneBook(): JsonResponse
     {
-        $sheets = Sheets::spreadsheet(env('PHONEBOOK_SPREADSHEET_ID'))
-            ->sheet('Лист1')
-            ->get();
+        $sheets = Sheets::spreadsheet(env('PHONEBOOK_SPREADSHEET_ID'))->sheet('Лист1')->get();
         $updateCount = 0;
-
         $employees = Employee::all();
         foreach ($sheets as $index => $row) {
-            if ($index === 0) continue;
-            [$employeeId, $fullName, $internalCode, $mobilePhone, $roomNumber] = $row;
+            if (count($row) <= 7) continue;
+            [$workingPosition, $fullName, $phone ,$internalCode, $mobilePhone, $roomNumber, $objectName, $employeeId] = $row;
             if ($employeeId === null || $employeeId === "") continue;
             $employee = $employees->find($employeeId);
             if ($employee === null) continue;
@@ -75,7 +72,8 @@ class EmployeeController extends Controller
             $employee->update([
                 'internalCode' => $internalCode ?? $employee->internalCode,
                 'mobilePhone' => $mobilePhone ?? $employee->mobilePhone,
-                'roomNumber' => $roomNumber ?? $employee->roomNumber
+                'roomNumber' => $roomNumber ?? $employee->roomNumber,
+                'workingPosition' => $workingPosition ?? $employee->workingPosition
             ]);
             $updateCount++;
         }

@@ -9,12 +9,11 @@
          role="application">
         <div class="fr-wrapper">
             <div class="fr-element fr-view">
-                <div class="row">
-                    <div class="col fr-box">
-                        <div class="fr-wrapper">
-                            <div class="fr-element fr-view">
-                                <h1>Спасибо за вопрос!</h1>
-                                <p class="lead">Какой то дополнительный текст</p></div>
+                <div class="fr-box">
+                    <div class="fr-wrapper">
+                        <div class="fr-element fr-view">
+                            <h1>Спасибо за вопрос!</h1>
+                            <p class="lead">Мы ответим на вопрос на указанный Email</p>
                         </div>
                     </div>
                 </div>
