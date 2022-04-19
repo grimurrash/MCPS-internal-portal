@@ -6,7 +6,7 @@
       <b-link class="brand-logo">
         <mpsc-logo />
         <h2 class="brand-text text-primary ml-1">
-          Патриот Спорт
+          Патриот.Спорт
         </h2>
       </b-link>
       <!-- /Brand logo-->
@@ -141,25 +141,25 @@
 
 <script>
 /* eslint-disable global-require */
-import { ValidationProvider, ValidationObserver } from 'vee-validate'
+import { ValidationObserver, ValidationProvider } from 'vee-validate'
 import MpscLogo from '@/layouts/components/Logo.vue'
 import {
-  BRow,
+  BButton,
+  BCardText,
+  BCardTitle,
   BCol,
-  BLink,
+  BForm,
   BFormCheckbox,
   BFormGroup,
   BFormInput,
-  BInputGroupAppend,
-  BInputGroup,
-  BCardText,
-  BCardTitle,
   BImg,
-  BForm,
-  BButton,
+  BInputGroup,
+  BInputGroupAppend,
+  BLink,
+  BRow,
 } from 'bootstrap-vue'
 import useJwt from '@/auth/jwt/useJwt'
-import { required, email } from '@validations'
+import { email, required } from '@validations'
 import { togglePasswordVisibility } from '@core/mixins/ui/forms'
 import store from '@/store'
 import { getHomeRouteForLoggedInUser } from '@/auth/utils'

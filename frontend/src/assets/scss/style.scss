@@ -1,6 +1,21 @@
-/*================================================================================
+.helpdesk-wrapper {
+  display: flex;
+  justify-content: center;
+  padding-top: 50px;
+  width: 100%;
+  //min-height: 100vh;
+  //min-height: calc(var(--vh, 1vh)*100);
 
-NOTE:
-------
-PLACE HERE YOUR OWN SCSS CODES AND IF NEEDED, OVERRIDE THE STYLES FROM THE OTHER STYLESHEETS.
-WE WILL RELEASE FUTURE UPDATES SO IN ORDER TO NOT OVERWRITE YOUR STYLES IT'S BETTER LIKE THIS.  */
+  .helpdesk-inner {
+    width: 100%;
+    position: relative;
+    max-width: 600px;
+
+    .helpdesk-logo{
+      display: flex;
+      justify-content: center;
+      align-items: end;
+    }
+  }
+}
+

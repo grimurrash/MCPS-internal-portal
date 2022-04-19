@@ -41,6 +41,7 @@ class PasswordResetSuccess extends Notification implements ShouldQueue
     public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
+            ->subject('Смена пароля')
             ->greeting('Здравствуйте!')
             ->line('Вы успешно сменили пароль.')
             ->line('Если вы изменили пароль, никаких дальнейших действий не требуется.')

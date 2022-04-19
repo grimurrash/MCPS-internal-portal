@@ -23,4 +23,16 @@ export default [
     resource: 'mcps-events',
     route: 'management-word-cloud-list',
   },
+  {
+    header: 'Техподдержка',
+    action: 'write',
+    resource: 'it-support',
+  },
+  {
+    title: 'Список заявок',
+    icon: 'CheckSquareIcon',
+    action: 'write',
+    resource: 'it-support',
+    route: 'management-helpdesk-list',
+  },
 ]

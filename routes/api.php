@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountSettingController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Documents\DocumentController;
 use App\Http\Controllers\Documents\DocumentTemplateController;
 use App\Http\Controllers\Documents\DocumentTypeController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\Events\WordCloudController;
 use App\Http\Controllers\FileStorageController;
 use App\Http\Controllers\Management\DepartmentController;
 use App\Http\Controllers\Management\EmployeeController;
+use App\Http\Controllers\Management\HelpDeskController;
 use App\Http\Controllers\Management\UserController;
 use App\Http\Controllers\Management\VisitEventController;
 use App\Http\Controllers\ManagerBoardController;
@@ -15,7 +17,6 @@ use App\Http\Controllers\Organizers\OrganizerController;
 use App\Http\Controllers\QuestionFormController;
 use App\Http\Controllers\ScriptController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
 
 Route::get('question/answer/{id}/text', [QuestionFormController::class, 'answerText']);
 
@@ -46,6 +47,10 @@ Route::group(['prefix' => 'auth'], function () {
     });
 });
 
+Route::group(['prefix' => 'helpdesk'], function () {
+    Route::get('options', [HelpDeskController::class, 'createOptionsList']);
+    Route::post('create', [HelpDeskController::class, 'createHelpDeskRequest']);
+});
 
 Route::group(['middleware' => 'auth:api'], function () {
     Route::group(['prefix' => 'account-setting'], function () {
@@ -55,6 +60,15 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::post('password/save-changes', [AccountSettingController::class, 'updatePassword']);
             Route::post('info/save-changes', [AccountSettingController::class, 'updateInfo']);
         });
+    });
+
+    Route::group(['prefix' => 'helpdesk'], function () {
+        Route::get('tableOptions', [HelpDeskController::class, 'tableOptionsList']);
+        Route::get('/', [HelpDeskController::class, 'index']);
+        Route::get('/{id}', [HelpDeskController::class, 'show']);
+        Route::post('/{id}', [HelpDeskController::class, 'update']);
+        Route::post('/{id}/status', [HelpDeskController::class, 'changeHelpDeskRequestStatus']);
+        Route::post('/{id}/executor', [HelpDeskController::class, 'acceptHelpDeskRequest']);
     });
 
     //  FileStorage

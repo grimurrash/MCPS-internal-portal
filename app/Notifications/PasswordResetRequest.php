@@ -45,6 +45,7 @@ class PasswordResetRequest extends Notification implements ShouldQueue
     {
         $url = url('/auth/reset-password/' . $this->token);
         return (new MailMessage)
+            ->subject('Сброс пароля для портала МЦПС')
             ->greeting('Здравствуйте!')
             ->line('Вы получаете это письмо, потому что мы получили запрос на сброс пароля для вашей учетной записи.')
             ->action('Сброс пароля', url($url))

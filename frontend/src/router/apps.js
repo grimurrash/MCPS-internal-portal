@@ -4,8 +4,8 @@ export default [
     name: 'request-to-the-technical-support',
     component: () => import('@/views/pages/RequestTo/RequestToTheTechnicalSupport.vue'),
     meta: {
-      resource: 'request-to',
       action: 'read',
+      resource: 'request-to',
       pageTitle: 'Заявка в техническую поддержку',
       breadcrumb: [
         {

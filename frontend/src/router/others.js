@@ -38,6 +38,45 @@ export default [
     },
   },
   {
+    path: '/management/helpdesk/list',
+    name: 'management-helpdesk-list',
+    component: () => import('@/views/managements/helpdesk/HelpDeskList.vue'),
+    meta: {
+      resource: 'it-support',
+      action: 'write',
+      pageTitle: 'Техподдержка',
+      breadcrumb: [
+        {
+          text: 'Техподдержка',
+        },
+        {
+          text: 'Заявки',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
+    path: '/helpdesk',
+    name: 'helpdesk',
+    component: () => import('@/views/pages/RequestTo/RequestToTheTechnicalSupport.vue'),
+    meta: {
+      action: 'read',
+      layout: 'full',
+      resource: 'Auth',
+      pageTitle: 'Заявка в техническую поддержку',
+      breadcrumb: [
+        {
+          text: 'Техподдержка',
+        },
+        {
+          text: 'Заявка в техническую поддержку',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
     path: '/login',
     name: 'auth-login',
     component: () => import('@/views/others/authentication/Login.vue'),
