@@ -9,7 +9,7 @@
 
   <title>Московский центр "Патриот Спорт"</title>
   <!-- Styles -->
-  <link rel="stylesheet" href="{{ asset(mix('css/app.css')) }}">
+  <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 
   <!-- Favicon -->
   <link rel="shortcut icon" href="{{ asset('favicon.png') }}">
@@ -21,7 +21,7 @@
   <div id="app">
   </div>
 
-  <script src="{{ asset(mix('js/app.js')) }}"></script>
+  <script src="{{ asset('js/app.js') }}"></script>
 
 </body>
 </html>

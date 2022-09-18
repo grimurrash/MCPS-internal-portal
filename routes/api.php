@@ -13,6 +13,7 @@ use App\Http\Controllers\Management\HelpDeskController;
 use App\Http\Controllers\Management\UserController;
 use App\Http\Controllers\Management\VisitEventController;
 use App\Http\Controllers\ManagerBoardController;
+use App\Http\Controllers\MCPSEventsController;
 use App\Http\Controllers\Organizers\OrganizerController;
 use App\Http\Controllers\QuestionFormController;
 use App\Http\Controllers\ScriptController;
@@ -24,6 +25,8 @@ Route::prefix('word-cloud')->group(function () {
     Route::get('/{id}/settings', [WordCloudController::class, 'getWordCloudSetting']);
     Route::get('/{id}/answer', [WordCloudController::class, 'getWordCloudAnswer']);
 });
+
+Route::post('events/admin/participant/{id}/sendQrCodes', [MCPSEventsController::class, 'sendQrCode']);
 
 //  Auth
 Route::group(['prefix' => 'auth'], function () {
@@ -121,6 +124,8 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::post('/{id}', [WordCloudController::class, 'update']);
             Route::delete('/{id}', [WordCloudController::class, 'delete']);
             Route::post('/{id}/clear',[WordCloudController::class, 'clear']);
+            Route::post('/{id}/exportToExcel', [WordCloudController::class, 'exportWordCloudAnswerToExcel']);
+            Route::post('/{id}/exportToGoogle', [WordCloudController::class, 'exportWordCloudAnswerToGoogleSheep']);
         });
     });
 

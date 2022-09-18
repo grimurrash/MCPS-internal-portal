@@ -128,6 +128,14 @@
               <feather-icon icon="EditIcon" />
               <span class="align-middle ml-50">Редактировать</span>
             </b-dropdown-item>
+            <b-dropdown-item @click.prevent="exportToExcel(data.item.id)">
+              <feather-icon icon="EditIcon" />
+              <span class="align-middle ml-50">Эспорт ответов (excel)</span>
+            </b-dropdown-item>
+            <b-dropdown-item @click.prevent="exportToGoogle(data.item.id)">
+              <feather-icon icon="EditIcon" />
+              <span class="align-middle ml-50">Эспорт ответов (google)</span>
+            </b-dropdown-item>
             <b-dropdown-item @click.prevent="fetchClearItem(data.item.id)">
               <feather-icon icon="Trash2Icon" />
               <span class="align-middle ml-50">Очистить</span>
@@ -187,12 +195,31 @@
         </b-row>
       </div>
     </b-card>
+    <b-card class="mt-3">
+      <b-card-title>
+        Ссылка на гугл таблицу с ответами: <a
+          class="btn btn-primary"
+          target="_blank"
+          href="https://docs.google.com/spreadsheets/d/1qbgHxCQGoJ1td9P1AGfrTP9qqYwjsog9uqI9TXDhxFI/edit#gid=1193448412"
+        >Перейти</a>
+        <b-button
+          v-clipboard:copy="'https://docs.google.com/spreadsheets/d/1qbgHxCQGoJ1td9P1AGfrTP9qqYwjsog9uqI9TXDhxFI/edit#gid=1193448412'"
+          v-clipboard:success="onCopy"
+          v-clipboard:error="onError"
+          v-ripple.400="'rgba(186, 191, 199, 0.15)'"
+          variant="primary"
+        >
+          <feather-icon icon="CopyIcon" />
+          Скопировать
+        </b-button>
+      </b-card-title>
+    </b-card>
   </div>
 </template>
 
 <script>
 import {
-  BCard, BRow, BCol, BFormInput, BTable, BDropdown, BDropdownItem, BPagination, BButton,
+  BCard, BRow, BCol, BFormInput, BTable, BDropdown, BDropdownItem, BPagination, BButton, BCardTitle,
 } from 'bootstrap-vue'
 import axios from '@/libs/axios'
 import ToastificationContent from '@core/components/toastification/ToastificationContent.vue'
@@ -204,6 +231,8 @@ import { useToast } from 'vue-toastification/composition'
 import { avatarText } from '@core/utils/filter'
 import WordCloudAdd from '@/views/managements/wordCloud/WordCloudAdd.vue'
 import WordCloudEdit from '@/views/managements/wordCloud/WordCloudEdit.vue'
+// eslint-disable-next-line import/no-extraneous-dependencies
+import FileDownload from 'js-file-download'
 
 export default {
   components: {
@@ -217,6 +246,7 @@ export default {
     BButton,
     BDropdownItem,
     BPagination,
+    BCardTitle,
     vSelect,
     WordCloudAdd,
   },
@@ -430,6 +460,52 @@ export default {
       })
     }
 
+    const exportToGoogle = wordCloudId => {
+      axios.post(`/events/wordcloud/${wordCloudId}/exportToGoogle`)
+        .then(() => {
+          toast({
+            component: ToastificationContent,
+            position: 'top-right',
+            props: {
+              title: 'Гугл таблица обновлена',
+              variant: 'success',
+              icon: 'CheckIcon',
+            },
+          })
+        })
+        .catch(() => {
+          toast({
+            component: ToastificationContent,
+            position: 'top-right',
+            props: {
+              title: 'Не удалось экспортировать ответы',
+              variant: 'danger',
+              icon: 'AlertCircleIcon',
+            },
+          })
+        })
+    }
+
+    const exportToExcel = wordCloudId => {
+      axios.post(`/events/wordcloud/${wordCloudId}/exportToExcel`, {}, {
+        responseType: 'blob', // Important
+      })
+        .then(response => {
+          FileDownload(response.data, 'wordCloudAnswers.xlsx')
+        })
+        .catch(() => {
+          toast({
+            component: ToastificationContent,
+            position: 'top-right',
+            props: {
+              title: 'Не удалось экспортировать ответы',
+              variant: 'danger',
+              icon: 'AlertCircleIcon',
+            },
+          })
+        })
+    }
+
     const resolveUserRoleVariant = role => {
       // if (role === 'member' || role === 'teacher') return 'primary'
       // if (role === 'developer') return 'warning'
@@ -483,6 +559,8 @@ export default {
       getUserData,
       fetchClearItem,
       fetchDeleteItem,
+      exportToExcel,
+      exportToGoogle,
     }
   },
 }

@@ -14,7 +14,7 @@ class Role extends Model
     public $timestamps = false;
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
     public function permissions(): BelongsToMany
     {

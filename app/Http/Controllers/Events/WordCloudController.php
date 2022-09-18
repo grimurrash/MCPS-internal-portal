@@ -11,6 +11,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Exception;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Revolution\Google\Sheets\Facades\Sheets;
 
 class WordCloudController extends Controller
 {
@@ -182,6 +186,9 @@ class WordCloudController extends Controller
             $answer = Str::lower($item->answer);
             $answer = str_ireplace(['…', '.', ','], ';', $answer);
             foreach (explode(';', $answer) as $str) {
+                $str = trim($str);
+                if (mb_strlen($str) == 0) continue;
+
                 $answers[] = $str;
             }
         }
@@ -189,5 +196,103 @@ class WordCloudController extends Controller
             'answers' => $answers,
             'count' => count($answers)
         ]);
+    }
+
+    private function getWordCloudAnswers(WordCloud $wordCloud): array
+    {
+        $allAnswer = WordCloudAnswer::query()->where('wordCloud_id', $wordCloud->id)->get('answer');
+
+        $answers = [];
+
+        foreach ($allAnswer as $item) {
+            $answer = Str::lower($item->answer);
+            $answer = str_ireplace(['…', '.', ','], ';', $answer);
+            foreach (explode(';', $answer) as $str) {
+                $str = str_ireplace(['?', '!', '-'], '', $str);
+                $str = trim($str);
+                if (mb_strlen($str) == 0) continue;
+
+                if (isset($answers[$str])) {
+                    $answers[$str] = $answers[$str] + 1;
+                } else {
+                    $answers[$str] = 1;
+                }
+            }
+        }
+
+        $list = [];
+
+        foreach ($answers as $answer => $count)
+        {
+            $list[] = [
+                $answer,
+                $count
+            ];
+        }
+        usort($list, function ($a, $b) {
+            return $a[1] < $b[1];
+        });
+
+        array_unshift($list, [
+            'Ответ',
+            'Кол-во'
+        ]);
+
+        array_unshift($list, [
+            'Вопрос:',
+            $wordCloud->question
+        ]);
+
+        return $list;
+    }
+
+    public function exportWordCloudAnswerToExcel(Request $request, int $wordCloudId) {
+        /** @var WordCloud $wordCloud */
+        $wordCloud = WordCloud::query()->find($wordCloudId);
+        if ($wordCloud == null) {
+            return response()->json(['message' => 'Not found WordCloud']);
+        }
+        $list = $this->getWordCloudAnswers($wordCloud);
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->fromArray($list);
+
+        foreach (range(0, 1) as $columnID) {
+            $sheet->getColumnDimensionByColumn($columnID)->setAutoSize(true);
+        }
+        $tempPath = storage_path('app/public/temp/wordCloudAnswers' . $request->user()->id . '.xlsx');
+        try {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save($tempPath);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()]);
+        }
+        $spreadsheet->disconnectWorksheets();
+        return response()->download($tempPath)->deleteFileAfterSend();
+    }
+
+    public function exportWordCloudAnswerToGoogleSheep(Request $request, int $wordCloudId): JsonResponse
+    {
+        $googleTableId = '1qbgHxCQGoJ1td9P1AGfrTP9qqYwjsog9uqI9TXDhxFI';
+
+        /** @var WordCloud $wordCloud */
+        $wordCloud = WordCloud::query()->find($wordCloudId);
+        if ($wordCloud == null) {
+            return response()->json(['message' => 'Not found WordCloud']);
+        }
+
+        $list = $this->getWordCloudAnswers($wordCloud);
+
+        $spreadsheet = Sheets::spreadsheet($googleTableId);
+
+        if (!in_array($wordCloud->id, $spreadsheet->sheetList())) {
+            $spreadsheet->addSheet($wordCloud->id);
+        }
+        $spreadsheet->sheet($wordCloud->id)
+            ->range('A1')
+            ->update($list);
+
+        return response()->json(['message' => 'success']);
     }
 }

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\MCPSEventsQRCodeCreateMail;
 use chillerlan\QRCode\QRCode;
-use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Revolution\Google\Sheets\Facades\Sheets;
 
@@ -36,7 +37,7 @@ class MCPSEventsController extends Controller
         if ($searchParticipant === null) return ['isHas' => false];
         return [
             'isHas' => true,
-            'name' => $searchParticipant[1] . ' ' . $searchParticipant[2] . ' ' . $searchParticipant[3],
+            'name' => $searchParticipant[1] . ' ' . $searchParticipant[2] . ' ' . $searchParticipant[3] ?? '',
             'email' => $searchParticipant[0],
             'status' => $searchParticipant[1],
             'position' => $searchParticipant[4] ?? '',
@@ -130,5 +131,55 @@ class MCPSEventsController extends Controller
             ->range('A' . (count($sheet) + 1))
             ->update($newRows);
         return 'Таблица участников обновлена';
+    }
+
+    public function sendQrCode($eventId)
+    {
+        $sheet = Sheets::spreadsheet($this->spreadsheetId)
+            ->sheet($eventId)
+            ->get();
+
+        $list = [];
+        $isSkip = true;
+        $maxSendCount = 40;
+        foreach ($sheet as $index => $row) {
+            $row[0] = trim($row[0]);
+            if ($index === 0) continue;
+
+//            if ($index <= 1000) continue;
+
+            if (trim($row[0]) === '') continue;
+
+            if ($row[0] == trim('PerebyakinaEA@edu.mos.ru')) {
+                $list[] = $row;
+                Mail::send(new MCPSEventsQRCodeCreateMail($row[0], $row[6]));
+                break;
+            }
+
+//            if ($row[0] == trim('MakarovaOE1@edu.mos.ru')) {
+//                $isSkip = false;
+//            }
+
+            if ($isSkip) continue;
+
+            if (count($list) === $maxSendCount) {
+                return response()->json([
+                    'status' => true,
+                    'count' => count($list),
+                    'lastSendRow' => $index,
+                    'lastNotSendEmail' => $list[count($list)-1][0],
+                    'list' => array_column($list, 0)
+                ]);
+            }
+
+            $list[] = $row;
+            Mail::send(new MCPSEventsQRCodeCreateMail($row[0], $row[6]));
+        }
+
+        return response()->json([
+            'status' => true,
+            'count' => count($list),
+            'list' => array_column($list, 0)
+        ]);
     }
 }

@@ -6,6 +6,8 @@ use App\Helper\ZipHelper;
 use App\Http\Controllers\Controller;
 use App\Models\DocumentTemplate;
 use Carbon\Carbon;
+use PhpOffice\PhpWord\Exception\CopyFileException;
+use PhpOffice\PhpWord\Exception\CreateTemporaryFileException;
 use RuntimeException;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -18,10 +20,10 @@ class DocumentController extends Controller
 
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
-     * @throws \PhpOffice\PhpWord\Exception\CopyFileException
-     * @throws \PhpOffice\PhpWord\Exception\CreateTemporaryFileException
+     * @param Request $request
+     * @return BinaryFileResponse
+     * @throws CopyFileException
+     * @throws CreateTemporaryFileException
      */
     public function printExcelDataByTemplate(Request $request): BinaryFileResponse
     {
@@ -94,10 +96,10 @@ class DocumentController extends Controller
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
-     * @throws \PhpOffice\PhpWord\Exception\CopyFileException
-     * @throws \PhpOffice\PhpWord\Exception\CreateTemporaryFileException
+     * @param Request $request
+     * @return BinaryFileResponse
+     * @throws CopyFileException
+     * @throws CreateTemporaryFileException
      */
     public function printExcelDataByExistentTemplate(Request $request): BinaryFileResponse
     {
