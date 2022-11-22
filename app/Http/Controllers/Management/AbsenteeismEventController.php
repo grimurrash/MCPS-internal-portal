@@ -4,24 +4,21 @@ namespace App\Http\Controllers\Management;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\visitEvents\AttendanceVisitEventResource;
-use App\Models\Employee;
 use App\Models\VisitEvent;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Exception;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
-class VisitEventController extends Controller
+class AbsenteeismEventController extends Controller
 {
+
     private function getList(Request $request): Collection
     {
         $search = Str::lower($request->input('q', ''));
@@ -29,7 +26,7 @@ class VisitEventController extends Controller
         if ($sortBy === null) $sortBy = 'id';
         $sortDesc = $request->input('sortDesc', false) === "true";
 
-        $isLateArrival = $request->input('isLateArrival', false) === "true";
+        $isAbsenteeism = $request->input('isAbsenteeism', 'true') == true;
         $department_id = $request->input('department_id');
         $employee_id = $request->input('employee_id');
         $startDate = $request->input('start_date');
@@ -130,9 +127,9 @@ class VisitEventController extends Controller
                 return false;
             });
         }
-        if ($isLateArrival === true) {
+        if ($isAbsenteeism) {
             $eventList = $eventList->filter(function ($q) {
-                return VisitEvent::isLateArrival($q['entrance_time'], $q['startOfTheDay']);
+                return VisitEvent::isAbsenteeism($q['entrance_time'], $q['startOfTheDay']);
             });
         }
 
@@ -158,8 +155,9 @@ class VisitEventController extends Controller
             }
             return $event[$sortBy];
         }, 0, $sortDesc);
-    }
 
+
+    }
     /**
      * @param Request $request
      * @return JsonResponse
@@ -168,7 +166,7 @@ class VisitEventController extends Controller
     {
         $perPage = (int)$request->input('perPage', 10);
         $page = (int)$request->input('page', 1);
-        $eventList =$this->getList($request);
+        $eventList = $this->getList($request);
         $totalCount = $eventList->count();
         $eventList = $eventList->skip($page * $perPage - $perPage)->take($perPage);
         return response()->json([
@@ -177,109 +175,6 @@ class VisitEventController extends Controller
         ]);
     }
 
-    /**
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function import(Request $request): JsonResponse
-    {
-        $validator = Validator::make($request->all(), [
-            'file' => ['required', 'max:50000', 'mimes:xlsx,xls,xlsm'],
-        ]);
-
-        if ($validator->fails()) return response()->json(['errors' => $validator->errors()], 400);
-
-        $file = $request->file('file');
-        $fileName = "temp/importEmployees." . $file->getClientOriginalExtension();
-        Storage::put($fileName, file_get_contents($file->getRealPath()));
-        $filePath = storage_path('app/public/' . $fileName);
-
-        $list = [];
-        $excel = IOFactory::load($filePath);
-        $worksheet = $excel->getActiveSheet();
-        foreach ($worksheet->getRowIterator() as $row) {
-            $newRow = [];
-            foreach ($row->getCellIterator() as $cel) {
-                $newRow[] = $cel->getValue();
-            }
-            $list[] = $newRow;
-        }
-        $excel->disconnectWorksheets();
-        unset($excel);
-        unlink($filePath);
-
-        $isTodayTemplate = !($list[2][3] === 'Вход' || $list[2][3] === 'Выход' || $list[2][3] === '');
-        $minDate = "2080-12-30 21:21:21";
-        foreach ($list as $item) {
-            if ($item[1] === null) continue;
-            $minDate = min($minDate, $item[1]);
-        }
-        $events = VisitEvent::query()->whereDate('eventTime', '>=', Carbon::parse($minDate)->format('Y-m-d'))->get();
-        $employees = Employee::all();
-        $employeesArr = [];
-        foreach ($employees as $employee)
-            $employeesArr[$employee->id] = $employee->id;
-        $createCount = 0;
-        $errorCount = 0;
-        $createEvents = [];
-        foreach ($list as $index => $row) {
-            if ($index === 0 || $index === 1) continue;
-
-            if ($isTodayTemplate) {
-                $employeeId = trim((string)$row[3]);
-                $eventType = $row[8];
-            } else {
-                $employeeId = trim((string)$row[5]);
-                $eventType = $row[3];
-            }
-            if (empty($employeeId) || $eventType === '') continue;
-            $eventId = (int)$row[0];
-
-            $searchEvent = $events->contains(function ($val) use ($eventId, $eventType) {
-                return $val->eventId === $eventId && $val->eventType === $eventType;
-            });
-
-            if (!$searchEvent) {
-                if (!isset($employeesArr[$employeeId])) {
-                    $errorCount++;
-                    continue;
-                }
-                try {
-                    $createEvents[] = [
-                        'employee_id' => $employeeId,
-                        'eventId' => $eventId,
-                        'eventTime' => Carbon::parse($row[1]),
-                        'eventType' => $eventType
-                    ];
-                    $createCount++;
-                } catch (Exception $exception) {
-                    $errorCount++;
-                }
-            }
-        }
-        VisitEvent::query()->insert($createEvents);
-        return response()->json([
-            'createCount' => $createCount,
-            'errorCount' => $errorCount
-        ]);
-    }
-
-    /**
-     * @param Request $request
-     * @param $id
-     * @return JsonResponse
-     */
-    public function update(Request $request, $id): JsonResponse
-    {
-        $event = VisitEvent::query()->find($id);
-        if ($event === null) return response()->json(['error' => ['fullName' => 'Событие не найдено']], 404);
-
-        $event->update([
-            'note' => $request->input('note')
-        ]);
-
-        return response()->json(['message' => 'Примечание добавлено']);
-    }
 
     /**
      * @param Request $request
@@ -295,7 +190,9 @@ class VisitEventController extends Controller
             ->setCellValue('B1', 'ФИО')
             ->setCellValue('C1', 'Дата')
             ->setCellValue('D1', 'Время прихода')
-            ->setCellValue('E1', 'Время ухода');
+            ->setCellValue('E1', 'Время ухода')
+            ->setCellValue('F1', 'Начало рабочего дня')
+            ->setCellValue('G1', 'Конец рабочего дня');
         $row = 2;
         foreach ($eventList as $event) {
             $sheet->setCellValue('A' . $row, $event['employee']->department->name)
@@ -304,7 +201,9 @@ class VisitEventController extends Controller
                 ->setCellValue('D' . $row, $event['entrance_time'] === null ?
                     '-' : $event['entrance_time']->format('H:i'))
                 ->setCellValue('E' . $row, $event['exit_time'] === null ?
-                    '-' : $event['exit_time']->format('H:i'));
+                    '-' : $event['exit_time']->format('H:i'))
+                ->setCellValue('F' . $row, $event['startOfTheDay'])
+                ->setCellValue('G' . $row, $event['endOfTheDay']);
             $row++;
         }
         $sheet->setCellValue('A' . ($row + 1), 'Всего: ' . $eventList->count());
@@ -316,7 +215,7 @@ class VisitEventController extends Controller
         try {
             $writer = new Xlsx($spreadsheet);
             $writer->save($tempPath);
-        } catch (\PhpOffice\PhpSpreadsheet\Writer\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()]);
         }
         $spreadsheet->disconnectWorksheets();

@@ -7,6 +7,9 @@ use App\Http\Controllers\Documents\DocumentTemplateController;
 use App\Http\Controllers\Documents\DocumentTypeController;
 use App\Http\Controllers\Events\WordCloudController;
 use App\Http\Controllers\FileStorageController;
+use App\Http\Controllers\Management\AbsenceWorkEventController;
+use App\Http\Controllers\Management\AbsenteeismEventController;
+use App\Http\Controllers\Management\BreakEventController;
 use App\Http\Controllers\Management\DepartmentController;
 use App\Http\Controllers\Management\EmployeeController;
 use App\Http\Controllers\Management\HelpDeskController;
@@ -176,10 +179,26 @@ Route::group(['middleware' => 'auth:api'], function () {
 
         //  VisitEvent
         Route::group(['prefix' => 'visit-events'], function () {
-            Route::get('/', [VisitEventController::class, 'index']);
-            Route::get('/break', [VisitEventController::class, 'breakEvent']);
-            Route::post('/exportAttendance', [VisitEventController::class, 'exportAttendance']);
-            Route::post('/exportBreak', [VisitEventController::class, 'exportBreak']);
+            Route::group(['prefix' => 'attendance'], function () {
+                Route::get('/', [VisitEventController::class, 'index']);
+                Route::post('/export', [VisitEventController::class, 'export']);
+            });
+
+            Route::group(['prefix' => 'break'], function () {
+                Route::get('/', [BreakEventController::class, 'index']);
+                Route::post('/export', [BreakEventController::class, 'export']);
+            });
+
+            Route::group(['prefix' => 'absenteeism'], function () {
+                Route::get('/', [AbsenteeismEventController::class, 'index']);
+                Route::post('/export', [AbsenteeismEventController::class, 'export']);
+            });
+
+            Route::group(['prefix' => 'absence-work'], function () {
+                Route::get('/', [AbsenceWorkEventController::class, 'index']);
+                Route::post('/export', [AbsenceWorkEventController::class, 'export']);
+            });
+
             Route::group(['middleware' => 'logger:visit_events'], function () {
                 Route::post('import', [VisitEventController::class, 'import']);
                 Route::post('/{id}', [VisitEventController::class, 'update']);

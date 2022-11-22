@@ -6,7 +6,7 @@
       :department-filter.sync="departmentFilter"
       :employee-filter.sync="employeeFilter"
       :select-data.sync="selectDate"
-      :is-late-arrival.sync="isLongBreak"
+      :is-late-arrival="null"
       :department-options="departmentOptions"
       :employee-options="employeeOptions"
     />
@@ -35,7 +35,7 @@
           <!-- Per Page -->
           <b-col
             cols="12"
-            md="6"
+            md="4"
             class="d-flex align-items-center justify-content-start mb-1 mb-md-0"
           >
             <label>Показать</label>
@@ -48,11 +48,10 @@
             />
             <label>строк</label>
           </b-col>
-
           <!-- Search -->
           <b-col
             cols="12"
-            md="6"
+            md="8"
           >
             <div class="d-flex align-items-center justify-content-end">
               <b-form-input
@@ -69,7 +68,7 @@
               </b-button>
               <b-button
                 variant="primary"
-                @click="exportBreakEvents"
+                @click="exportVisitEvents"
               >
                 <span class="text-nowrap">Экспорт</span>
               </b-button>
@@ -164,7 +163,6 @@ export default {
     VisitEventEdit,
     VisitEventImport,
     VisitEventsListFilters,
-
     BCard,
     BRow,
     BCol,
@@ -185,9 +183,10 @@ export default {
       { key: 'employee', sortable: true, label: 'ФИО' },
       { key: 'department', sortable: true, label: 'Отдел' },
       { key: 'date', sortable: true, label: 'Дата' },
-      { key: 'exit_time', sortable: true, label: 'Ушел' },
-      { key: 'entrance_time', sortable: true, label: 'Вернулся' },
-      { key: 'break_time', sortable: true, label: 'Время перерыва' },
+      { key: 'startOfTheDay', sortable: true, label: 'Начало рабочего дня' },
+      { key: 'endOfTheDay', sortable: true, label: 'Конец рабочего дня' },
+      { key: 'entrance_time', sortable: true, label: 'Приход' },
+      { key: 'exit_time', sortable: true, label: 'Уход' },
     ]
     const perPage = ref(10)
     const totalEvents = ref(0)
@@ -200,7 +199,7 @@ export default {
     const employeeFilter = ref(null)
     const todayDate = new Date()
     const selectDate = ref(`${todayDate.getFullYear()}-${(todayDate.getMonth() + 1)}-${todayDate.getDate() - 1}`)
-    const isLongBreak = ref(false)
+    const isAbsenteeism = ref(true)
 
     const isImportVisitEventsSidebarActive = ref(false)
     const isEditVisitEventsSidebarActive = ref(false)
@@ -260,12 +259,12 @@ export default {
       eventsItems.value.refresh()
     }
 
-    watch([currentPage, perPage, searchQuery, departmentFilter, employeeFilter, selectDate, isLongBreak], () => {
+    watch([currentPage, perPage, searchQuery, departmentFilter, employeeFilter, selectDate, isAbsenteeism], () => {
       refetchData()
     })
 
     const fetchVisitEvents = (ctx, callback) => {
-      axios.get('/management/visit-events/break', {
+      axios.get('/management/visit-events/absenteeism', {
         params: {
           q: searchQuery.value,
           perPage: perPage.value,
@@ -274,13 +273,14 @@ export default {
           sortDesc: isSortDirDesc.value,
           department_id: departmentFilter.value,
           employee_id: employeeFilter.value,
-          start_date: selectDate.value === null ? '' : selectDate.value.split(' to ')[0],
-          end_date: selectDate.value === null ? '' : selectDate.value.split(' to ')[1],
-          isLongBreak: isLongBreak.value,
+          start_date: selectDate.value.split(' to ')[0],
+          end_date: selectDate.value.split(' to ')[1],
+          isAbsenteeism: isAbsenteeism.value,
         },
       })
         .then(response => {
           const { events, total } = response.data
+
           callback(events)
           totalEvents.value = total
         })
@@ -290,6 +290,37 @@ export default {
             position: 'top-right',
             props: {
               title: 'Не удалось загрузить сотрудников',
+              variant: 'danger',
+              icon: 'AlertCircleIcon',
+            },
+          })
+        })
+    }
+
+    const exportVisitEvents = () => {
+      axios.post('/management/visit-events/absenteeism/export', {
+        q: searchQuery.value,
+        perPage: perPage.value,
+        page: currentPage.value,
+        sortBy: sortBy.value,
+        sortDesc: isSortDirDesc.value,
+        department_id: departmentFilter.value,
+        employee_id: employeeFilter.value,
+        start_date: selectDate.value.split(' to ')[0],
+        end_date: selectDate.value.split(' to ')[1],
+        isAbsenteeism: isAbsenteeism.value,
+      }, {
+        responseType: 'blob', // Important
+      })
+        .then(response => {
+          FileDownload(response.data, 'Экспорт событий (прогул).xlsx')
+        })
+        .catch(() => {
+          toast({
+            component: ToastificationContent,
+            position: 'top-right',
+            props: {
+              title: 'Не удалось экспортировать события',
               variant: 'danger',
               icon: 'AlertCircleIcon',
             },
@@ -314,38 +345,7 @@ export default {
         return
       }
       // eslint-disable-next-line consistent-return
-      if (item.isLongBreak) return colorClass
-    }
-
-    const exportBreakEvents = () => {
-      axios.post('/management/visit-events/break/export', {
-        q: searchQuery.value,
-        perPage: perPage.value,
-        page: currentPage.value,
-        sortBy: sortBy.value,
-        sortDesc: isSortDirDesc.value,
-        department_id: departmentFilter.value,
-        employee_id: employeeFilter.value,
-        start_date: selectDate.value.split(' to ')[0],
-        end_date: selectDate.value.split(' to ')[1],
-        isLongBreak: isLongBreak.value,
-      }, {
-        responseType: 'blob', // Important
-      })
-        .then(response => {
-          FileDownload(response.data, 'Экспорт событий (перерывы).xlsx')
-        })
-        .catch(() => {
-          toast({
-            component: ToastificationContent,
-            position: 'top-right',
-            props: {
-              title: 'Не удалось экспортировать события',
-              variant: 'danger',
-              icon: 'AlertCircleIcon',
-            },
-          })
-        })
+      if (item.isAbsenteeism) return colorClass
     }
 
     return {
@@ -367,12 +367,12 @@ export default {
       isImportVisitEventsSidebarActive,
       isEditVisitEventsSidebarActive,
       editVisitEvent,
-      isLongBreak,
+      isAbsenteeism,
       rowClass,
       fetchVisitEvents,
       refetchData,
       selectEditVisitEvent,
-      exportBreakEvents,
+      exportVisitEvents,
     }
   },
 }

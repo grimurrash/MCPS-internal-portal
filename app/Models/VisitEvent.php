@@ -75,4 +75,15 @@ class VisitEvent extends Model
 
         return (int)(($entranceTime->timestamp - $exitTime->timestamp) / 60) > 15;
     }
+
+    public static function isAbsenteeism($entranceTime, $startOfTheDay): bool
+    {
+        $startOfTheDay = explode(':', $startOfTheDay);
+        if ($entranceTime === null) return true;
+        $entranceTimeHour = (int)$entranceTime->format('H');
+        if ($entranceTimeHour >= (int)$startOfTheDay[0] + 4)
+            return true;
+
+        return false;
+    }
 }

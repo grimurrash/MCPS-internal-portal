@@ -264,7 +264,7 @@ export default {
     })
 
     const fetchVisitEvents = (ctx, callback) => {
-      axios.get('/management/visit-events', {
+      axios.get('/management/visit-events/attendance', {
         params: {
           q: searchQuery.value,
           perPage: perPage.value,
@@ -298,7 +298,7 @@ export default {
     }
 
     const exportVisitEvents = () => {
-      axios.post('/management/visit-events/exportAttendance', {
+      axios.post('/management/visit-events/attendance/export', {
         q: searchQuery.value,
         perPage: perPage.value,
         page: currentPage.value,

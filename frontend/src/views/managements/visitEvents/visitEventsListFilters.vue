@@ -62,6 +62,7 @@
 
         <!-- Опоздангие -->
         <b-col
+          v-if="isLateArrival !== null"
           cols="12"
           md="2"
           class="mb-md-0 mb-2"

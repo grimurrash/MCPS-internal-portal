@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\visitEvents;
 
 use App\Models\VisitEvent;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class VisitEventResource extends JsonResource
+class AbsenteeismVisitEventResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,7 +17,6 @@ class VisitEventResource extends JsonResource
     {
         $entrance_time = $this['entrance_time'] === null ? '-' : $this['entrance_time']->format('H:i');
         $exit_time = $this['exit_time'] === null ? '-' : $this['exit_time']->format('H:i');
-        $isLateArrival = VisitEvent::isLateArrival($this['entrance_time'], $this['startOfTheDay']);
 
         return [
             'employee' => $this['employee']->fullName,
@@ -29,7 +28,7 @@ class VisitEventResource extends JsonResource
             'exit_time' => $exit_time,
             'startOfTheDay' => $this['startOfTheDay'],
             'endOfTheDay' => $this['endOfTheDay'],
-            'isLateArrival' => $isLateArrival,
+            'isAbsenteeism' => VisitEvent::isAbsenteeism($this['entrance_time'], $this['startOfTheDay'] )
         ];
     }
 }

@@ -82,6 +82,50 @@ export default [
     },
   },
   {
+    path: '/management/visit-events/absenteeism',
+    name: 'management-visit-events-absenteeism',
+    component: () => import('@/views/managements/visitEvents/visitEventsAbsenteeism'),
+    meta: {
+      resource: 'visit-events',
+      action: 'manage',
+      pageTitle: ' Прогулы',
+      breadcrumb: [
+        {
+          text: 'Управление',
+        },
+        {
+          text: 'Посещаемость',
+        },
+        {
+          text: 'Прогулы',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
+    path: '/management/visit-events/absence-work',
+    name: 'management-visit-events-absence-work',
+    component: () => import('@/views/managements/visitEvents/visitEventsAbsenceWork'),
+    meta: {
+      resource: 'visit-events',
+      action: 'manage',
+      pageTitle: ' Отсутствие на работе',
+      breadcrumb: [
+        {
+          text: 'Управление',
+        },
+        {
+          text: 'Посещаемость',
+        },
+        {
+          text: 'Отсутствие на работе',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
     path: '/management/users/list',
     name: 'management-users-list',
     component: () => import('@/views/managements/users/users-list/UsersList'),
@@ -114,7 +158,6 @@ export default [
         },
         {
           text: 'Пользователи',
-          active: true,
         },
         {
           text: 'Подробно',
@@ -137,7 +180,6 @@ export default [
         },
         {
           text: 'Пользователи',
-          active: true,
         },
         {
           text: 'Редактирование',

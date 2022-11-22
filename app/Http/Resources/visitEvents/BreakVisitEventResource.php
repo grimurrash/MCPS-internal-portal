@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\visitEvents;
 
 use App\Models\VisitEvent;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class BreakEventResource extends JsonResource
+class BreakVisitEventResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

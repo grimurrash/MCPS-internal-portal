@@ -36,6 +36,18 @@ export default [
         resource: 'visit-events',
         action: 'manage',
       },
+      {
+        title: 'Прогулы',
+        route: 'management-visit-events-absenteeism',
+        resource: 'visit-events',
+        action: 'manage',
+      },
+      {
+        title: 'Отсутствие на работе',
+        route: 'management-visit-events-absence-work',
+        resource: 'visit-events',
+        action: 'manage',
+      },
     ],
   },
   {
