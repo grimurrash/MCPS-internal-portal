@@ -10,9 +10,9 @@
     <div class="card participant-card">
         <div class="card-body">
             <h4>Сведения об участнике:</h4>
-            <p> <b>{{ $info['name'] }}</b></p>
-            <p> <b>{{ $info['position'] }}</b></p>
-            <p> <b>{{ $info['workOrganisation'] }}</b></p>
+            <p> <b>{!! $info['name'] !!}</b></p>
+            <p> <b>{!! $info['position'] !!}</b></p>
+            <p> <b>{!! $info['workOrganisation'] !!} </b></p>
 {{--            <div class="row">--}}
 {{--                <div class="col-9">--}}
 {{--                    --}}

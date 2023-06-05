@@ -8,7 +8,7 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^7.3|^8.0",
+        "php": "^7.3|^7.4|^8.0",
         "ext-json": "*",
         "ext-libxml": "*",
         "ext-simplexml": "*",
@@ -24,6 +24,7 @@
         "microsoft/microsoft-graph": "^1.34",
         "phpoffice/phpspreadsheet": "^1.17",
         "phpoffice/phpword": "^0.18.1",
+        "predis/predis": "^2.1",
         "revolution/laravel-google-sheets": "^5.5"
     },
     "require-dev": {

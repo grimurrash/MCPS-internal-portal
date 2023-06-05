@@ -12,8 +12,14 @@
 </head>
 <body>
 <header>
-    <img class="header-logo" alt="logo"
-         src="https://patriotsport.moscow/wp-content/uploads/2020/04/artboard-3.svg?1626259592"/>
+    @if($info['eventId'] === '12')
+        <img class="header-logo" alt="logo"
+             src="{{ asset('images/live-stage.png') }}"/>
+    @else
+        <img class="header-logo" alt="logo"
+             src="https://patriotsport.moscow/wp-content/uploads/2020/04/artboard-3.svg?1626259592"/>
+    @endif
+
 </header>
 <div class="container">
     <div class="qr-code">

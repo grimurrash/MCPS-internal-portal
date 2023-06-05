@@ -37,11 +37,12 @@ class MCPSEventsController extends Controller
         if ($searchParticipant === null) return ['isHas' => false];
         return [
             'isHas' => true,
-            'name' => $searchParticipant[1] . ' ' . $searchParticipant[2] . ' ' . $searchParticipant[3] ?? '',
+            'eventId' => $eventId,
+            'name' => str_replace('\n', '</br>', $searchParticipant[1] . ' ' . $searchParticipant[2] . ' ' . $searchParticipant[3] ?? ''),
             'email' => $searchParticipant[0],
             'status' => $searchParticipant[1],
-            'position' => $searchParticipant[4] ?? '',
-            'workOrganisation' => $searchParticipant[5] ?? '',
+            'position' => str_replace('\n', '<br>', $searchParticipant[4] ?? ''),
+            'workOrganisation' => str_replace('\n', '<br>', $searchParticipant[5] ?? ''),
 //            'place' => $searchParticipant[8] ?? '',
 //            'row' => $searchParticipant[9] ?? '',
             'qrCode' => "http://portal.cpvs.moscow/events/admin/participant/$eventId?id=$email"
@@ -74,8 +75,9 @@ class MCPSEventsController extends Controller
     public function participantQRCode(Request $request, $eventId)
     {
         $info = $this->getEventParticipantInfoFromGoogleSheet($eventId, $request->input('id'));
-        if (!$info['isHas']) return view('participants.notRegistered');
+        if (!$info['isHas']) return view('participants.notRegistered', ['eventId' => $eventId]);
         return view('participants.show', [
+            'eventId' => $eventId,
             'info' => $info,
             'qrCode' => (new QrCode())->render($info['qrCode'])
         ]);
@@ -83,10 +85,10 @@ class MCPSEventsController extends Controller
 
     public function readParticipantQRCode(Request $request, $eventId)
     {
-        if (!Session::get('isEventUser', false)) return view('participants.notPermission');
+        if (!Session::get('isEventUser', false)) return view('participants.notPermission', ['eventId' => $eventId]);
         $email = $request->input('id');
         $info = $this->getEventParticipantInfoFromGoogleSheet($eventId, $email);
-        if (!$info['isHas']) return view('participants.notRegistered');
+        if (!$info['isHas']) return view('participants.notRegistered', ['eventId' => $eventId]);
         return view('participants.admin', [
             'eventId' => $eventId,
             'info' => $info,
@@ -98,10 +100,10 @@ class MCPSEventsController extends Controller
 
     public function confirmationParticipant(Request $request, $eventId)
     {
-        if (!Session::get('isEventUser', false)) return view('participants.notPermission');
+        if (!Session::get('isEventUser', false)) return view('participants.notPermission', ['eventId' => $eventId]);
         $this->setIsComeFromGoogleSheet($eventId, $request->input('id'));
 
-        return view('participants.end');
+        return view('participants.end', ['eventId' => $eventId]);
     }
 
     public function updateGoogleSheet($eventId): string
