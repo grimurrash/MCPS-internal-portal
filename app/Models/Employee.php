@@ -12,8 +12,15 @@ use phpseclib3\Math\PrimeField\Integer;
 class Employee extends Model
 {
     use HasFactory;
+
     protected $guarded = [];
     public $timestamps = false;
+
+    public const GENDERS = [
+        1 => 'женский',
+        2 => 'мужской'
+    ];
+
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -28,7 +35,7 @@ class Employee extends Model
      */
     public function visitEvents(): HasMany
     {
-        return $this->hasMany(VisitEvent::class,'employee_id');
+        return $this->hasMany(VisitEvent::class, 'employee_id');
     }
 
     public function parseTime($time): string
@@ -42,7 +49,8 @@ class Employee extends Model
         return "$hous:$minutes";
     }
 
-    public function stringifyTime($string) {
+    public function stringifyTime($string)
+    {
         $arr = explode(':', $string);
         return $arr[0] * 60 + $arr[1];
     }

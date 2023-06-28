@@ -145,91 +145,104 @@
             </b-form-group>
           </validation-provider>
 
-          <!-- startOfTheDay -->
-          <validation-provider
-            #default="{ errors }"
-            name="Время начала рабочего дня"
-            rules="required|regex:^[0-2][0-9]:[0-5][0-9]$"
-          >
-            <b-form-group
-              label="Время начала рабочего дня"
-              label-for="startOfTheDay"
-            >
-              <b-input-group>
-                <b-form-input
-                  id="startOfTheDay"
-                  v-model="employee.startOfTheDay"
-                  type="text"
-                  :state="errors.length > 0 ? false:null"
-                  placeholder="HH:mm"
-                />
-                <b-input-group-append>
-                  <b-form-timepicker
-                    v-model="employee.startOfTheDay"
-                    button-only
-                    button-variant="outline-primary"
-                    size="sm"
-                    right
-                    aria-controls="startOfTheDay"
-                  />
-                </b-input-group-append>
-              </b-input-group>
-              <small class="text-danger">{{ errors[0] }}</small>
-            </b-form-group>
-          </validation-provider>
-
-          <!-- endOfTheDay -->
-          <validation-provider
-            #default="{ errors }"
-            name="Время окончания рабочего дня"
-            rules="required|regex:^[0-2][0-9]:[0-5][0-9]$"
-          >
-            <b-form-group
-              label="Время окончания рабочего дня"
-              label-for="endOfTheDay"
-            >
-              <b-input-group>
-                <b-form-input
-                  id="endOfTheDay"
-                  v-model="employee.endOfTheDay"
-                  type="text"
-                  :state="errors.length > 0 ? false:null"
-                  placeholder="HH:mm"
-                />
-                <b-input-group-append>
-                  <b-form-timepicker
-                    v-model="employee.endOfTheDay"
-                    button-only
-                    button-variant="outline-primary"
-                    size="sm"
-                    right
-                    aria-controls="endOfTheDay"
-                  />
-                </b-input-group-append>
-              </b-input-group>
-              <small class="text-danger">{{ errors[0] }}</small>
-            </b-form-group>
-          </validation-provider>
-
-          <!-- visitControl -->
           <b-form-group
-            label="Контроль посещения"
-            label-for="visitControl"
+            label="Пол"
+            label-for="gender"
           >
-            <b-form-checkbox
-              id="visitControl"
-              v-model="employee.visitControl"
-              class="custom-control-primary"
-              name="visitControl"
-              switch
-            >
-              <span class="switch-icon-left">
-                <feather-icon icon="BellIcon" />
-              </span>
-              <span class="switch-icon-right">
-                <feather-icon icon="BellOffIcon" />
-              </span>
-            </b-form-checkbox>
+            <v-select
+              id="gender"
+              v-model="employee.gender"
+              :options="genderOptions"
+              :reduce="val => val.value"
+              trim
+            />
+          </b-form-group>
+
+          <b-form-group
+            label="Образование"
+            label-for="education"
+          >
+            <v-select
+              id="gender"
+              v-model="employee.education"
+              :options="educationOptions"
+              :reduce="val => val.value"
+              trim
+            />
+          </b-form-group>
+
+          <!-- dateOfBirth -->
+          <b-form-group
+            label="Дата рождения"
+            label-for="dateOfBirth"
+          >
+            <b-input-group>
+              <b-form-input
+                id="dateOfBirth"
+                v-model="employee.dateOfBirth"
+                type="text"
+                placeholder="YYYY-MM-DD"
+              />
+              <b-input-group-append>
+                <b-form-datepicker
+                  v-model="employee.dateOfBirth"
+                  button-only
+                  button-variant="outline-primary"
+                  size="sm"
+                  right
+                  aria-controls="dateOfBirth"
+                />
+              </b-input-group-append>
+            </b-input-group>
+          </b-form-group>
+
+          <!-- dateOfEmployment -->
+          <b-form-group
+            label="Дата принятия на работу"
+            label-for="dateOfEmployment"
+          >
+            <b-input-group>
+              <b-form-input
+                id="dateOfEmployment"
+                v-model="employee.dateOfEmployment"
+                type="text"
+                placeholder="YYYY-MM-DD"
+              />
+              <b-input-group-append>
+                <b-form-datepicker
+                  v-model="employee.dateOfEmployment"
+                  button-only
+                  button-variant="outline-primary"
+                  size="sm"
+                  right
+                  aria-controls="dateOfEmployment"
+                />
+              </b-input-group-append>
+            </b-input-group>
+          </b-form-group>
+
+          <b-form-group
+            label="Дата прохождения курса Представителей Учредителя"
+            label-for="foundersRepresentativeDate"
+          >
+            <b-input-group>
+              <b-form-input
+                id="foundersRepresentativeDate"
+                v-model="employee.foundersRepresentativeDate"
+                type="text"
+                placeholder="YYYY-MM-DD"
+              />
+              <b-input-group-append>
+                <b-form-datepicker
+                  v-model="employee.foundersRepresentativeDate"
+                  button-only
+                  button-variant="outline-primary"
+                  size="sm"
+                  right
+                  aria-controls="foundersRepresentativeDate"
+                />
+              </b-input-group-append>
+            </b-input-group>
           </b-form-group>
 
           <!-- Form Actions -->
@@ -259,7 +272,7 @@
 
 <script>
 import {
-  BSidebar, BForm, BFormGroup, BFormInput, BButton, BFormTimepicker, BInputGroup, BInputGroupAppend, BFormCheckbox,
+  BSidebar, BForm, BFormGroup, BFormInput, BButton, BInputGroup, BInputGroupAppend, BFormDatepicker,
 } from 'bootstrap-vue'
 import { ValidationObserver, ValidationProvider } from 'vee-validate'
 import { ref } from '@vue/composition-api'
@@ -268,16 +281,17 @@ import formValidation from '@core/comp-functions/forms/form-validation'
 import Ripple from 'vue-ripple-directive'
 import axios from '@/libs/axios'
 import ToastificationContent from '@core/components/toastification/ToastificationContent.vue'
+import vSelect from 'vue-select'
 
 export default {
   components: {
+    vSelect,
     BSidebar,
     BForm,
     BFormGroup,
     BFormInput,
     BButton,
-    BFormCheckbox,
-    BFormTimepicker,
+    BFormDatepicker,
     BInputGroup,
     BInputGroupAppend,
 
@@ -301,6 +315,14 @@ export default {
       type: Object,
       required: true,
     },
+    genderOptions: {
+      type: Array,
+      required: true,
+    },
+    educationOptions: {
+      type: Array,
+      required: true,
+    },
   },
   data() {
     return {
@@ -320,9 +342,11 @@ export default {
         mobilePhone: employeeId.mobilePhone,
         roomNumber: employeeId.roomNumber,
         workingPosition: employeeId.workingPosition,
-        startOfTheDay: employeeId.startOfTheDay,
-        endOfTheDay: employeeId.endOfTheDay,
-        visitControl: employeeId.visitControl,
+        gender: employeeId.gender,
+        dateOfBirth: employeeId.dateOfBirth,
+        education: employeeId.education,
+        foundersRepresentativeDate: employeeId.foundersRepresentativeDate,
+        dateOfEmployment: employeeId.dateOfEmployment,
       }
     },
   },
@@ -336,9 +360,11 @@ export default {
             mobilePhone: this.employee.mobilePhone,
             roomNumber: this.employee.roomNumber,
             workingPosition: this.employee.workingPosition,
-            startOfTheDay: this.employee.startOfTheDay,
-            endOfTheDay: this.employee.endOfTheDay,
-            visitControl: this.employee.visitControl,
+            gender: this.employee.gender,
+            dateOfBirth: this.employee.dateOfBirth,
+            education: this.employee.education,
+            foundersRepresentativeDate: this.employee.foundersRepresentativeDate,
+            dateOfEmployment: this.employee.dateOfEmployment,
           })
             .then(() => {
               this.$emit('refetch-data')
@@ -368,6 +394,11 @@ export default {
       startOfTheDay: null,
       endOfTheDay: null,
       visitControl: false,
+      gender: null,
+      dateOfBirth: null,
+      education: null,
+      foundersRepresentativeDate: null,
+      dateOfEmployment: null,
     }
     const employee = ref(JSON.parse(JSON.stringify(blankUserData)))
     const resetuserData = () => {

@@ -6,7 +6,7 @@ import axios from 'axios'
 const axiosIns = axios.create({
   // You can add your headers here
   // ================================
-  // baseURL: 'http://portal.mcps.com/api/',
+  // baseURL: 'http://localhost/api/',
   baseURL: 'https://portal.cpvs.moscow/api/',
   // timeout: 1000,
   // headers: {'X-Custom-Header': 'foobar'}

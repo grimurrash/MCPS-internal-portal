@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Employee;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class EmployeeResource extends JsonResource
@@ -14,7 +15,7 @@ class EmployeeResource extends JsonResource
      */
     public function toArray($request): array
     {
-
+        /** @var Employee $this */
         return [
             'id' => $this->id,
             'fullName' => $this->fullName,
@@ -23,12 +24,13 @@ class EmployeeResource extends JsonResource
             'workingPosition' => $this->workingPosition,
             'roomNumber' => $this->roomNumber,
             'internalCode' => $this->internalCode,
+            'gender' => $this->gender,
+            'date_of_birth' => $this->date_of_birth,
+            'education' => $this->education,
+            'founders_representative_date' => $this->founders_representative_date,
+            'date_of_employment' => $this->date_of_employment,
             'mobilePhone' => $this->mobilePhone,
-            'startOfTheDay' => $this->parseTime($this->startOfTheDay),
-            'endOfTheDay' => $this->parseTime($this->endOfTheDay),
-            'visitControl'=> $this->visitControl === 1,
             'email' => $this->email,
-            'birthday' => $this->birthday
         ];
     }
 }

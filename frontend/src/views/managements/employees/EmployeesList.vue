@@ -10,6 +10,8 @@
     <employee-edit
       :is-edit-employee-sidebar-active.sync="isEditEmployeeSidebarActive"
       :employee-id="editEmployee"
+      :gender-options="genderOptions"
+      :education-options="educationOptions"
       @refetch-data="refetchData"
     />
 
@@ -18,6 +20,14 @@
       :is-have-internal-code-options="isHaveInternalCodeOptions"
       :department-filter.sync="departmentFilter"
       :is-have-internal-code-filter.sync="isHaveInternalCodeFilter"
+      :age-from-filter.sync="ageFromFilter"
+      :age-to-filter.sync="ageToFilter"
+      :education-filter.sync="educationFilter"
+      :education-options="educationOptions"
+      :gender-filter.sync="genderFilter"
+      :gender-options="genderOptions"
+      :is-founders-representative-filter.sync="isFoundersRepresentativeFilter"
+      :is-founders-representative-options="isFoundersRepresentativeOptions"
     />
 
     <!-- Table Container Card -->
@@ -218,9 +228,8 @@ export default {
       { key: 'workingPosition', sortable: true, label: 'Должность' },
       { key: 'roomNumber', sortable: true, label: 'Кабинет' },
       { key: 'internalCode', sortable: true, label: 'Внутренний номер' },
-      { key: 'startOfTheDay', sortable: true, label: 'Начало рабочего дня' },
-      { key: 'endOfTheDay', sortable: true, label: 'Конец рабочего дня' },
-      { key: 'visitControl', sortable: true, label: 'Контроль посещения' },
+      { key: 'date_of_birth', sortable: true, label: 'Дата рождения' },
+      { key: 'date_of_employment', sortable: true, label: 'Дата принятия на работу' },
       { key: 'actions', sortable: false, label: 'Действия' },
     ]
     const perPage = ref(10)
@@ -234,6 +243,51 @@ export default {
     const isImportEmployeesSidebarActive = ref(false)
     const departmentFilter = ref(null)
     const isHaveInternalCodeFilter = ref(null)
+    const educationFilter = ref(null)
+    const genderFilter = ref(null)
+    const isFoundersRepresentativeFilter = ref(null)
+    const ageFromFilter = ref(null)
+    const ageToFilter = ref(null)
+
+    const educationOptions = [
+      {
+        value: 'основное общее',
+        label: 'Основное общее',
+      },
+      {
+        value: 'среднее общее',
+        label: 'Среднее общее',
+      },
+      {
+        value: 'среднее профессиональное',
+        label: 'Среднее профессиональное',
+      },
+      {
+        value: 'высшее образование',
+        label: 'Высшее образование',
+      },
+    ]
+
+    const genderOptions = [
+      {
+        value: 'Мужской',
+        label: 'Мужской',
+      },
+      {
+        value: 'Женский',
+        label: 'Женский',
+      },
+    ]
+    const isFoundersRepresentativeOptions = [
+      {
+        value: true,
+        label: 'Да',
+      },
+      {
+        value: false,
+        label: 'Нет',
+      },
+    ]
 
     const dataMeta = computed(() => {
       const localItemsCount = employeesItems.value ? employeesItems.value.localItems.length : 0
@@ -282,9 +336,11 @@ export default {
       mobilePhone: '',
       roomNumber: '',
       workingPosition: '',
-      startOfTheDay: '',
-      endOfTheDay: '',
-      visitControl: false,
+      gender: '',
+      dateOfBirth: '',
+      education: '',
+      foundersRepresentativeDate: '',
+      dateOfEmployment: '',
     })
     const selectEditEmployee = item => {
       editEmployee.value = item
@@ -297,7 +353,7 @@ export default {
       isImportEmployeesSidebarActive.value = false
     }
 
-    watch([currentPage, perPage, searchQuery, departmentFilter, isHaveInternalCodeFilter], () => {
+    watch([currentPage, perPage, searchQuery, departmentFilter, isHaveInternalCodeFilter, educationFilter, genderFilter, isFoundersRepresentativeFilter, ageFromFilter, ageToFilter], () => {
       refetchData()
     })
 
@@ -311,6 +367,11 @@ export default {
           sortDesc: isSortDirDesc.value,
           department_id: departmentFilter.value,
           isHaveInternalCode: isHaveInternalCodeFilter.value,
+          gender: genderFilter.value,
+          education: educationFilter.value,
+          founders_representative: isFoundersRepresentativeFilter.value,
+          age_from: ageFromFilter.value,
+          age_to: ageToFilter.value,
         },
       })
         .then(response => {
@@ -350,6 +411,14 @@ export default {
       isHaveInternalCodeFilter,
       departmentOptions,
       isHaveInternalCodeOptions,
+      educationFilter,
+      educationOptions,
+      genderFilter,
+      genderOptions,
+      ageFromFilter,
+      ageToFilter,
+      isFoundersRepresentativeFilter,
+      isFoundersRepresentativeOptions,
       fetchEmployees,
       refetchData,
       selectEditEmployee,

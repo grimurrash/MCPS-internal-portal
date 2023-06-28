@@ -9,6 +9,7 @@ use App\Models\Department;
 use App\Models\Employee;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -64,7 +65,7 @@ class EmployeeController extends Controller
         $employees = Employee::all();
         foreach ($sheets as $index => $row) {
             if (count($row) <= 7) continue;
-            [$workingPosition, $fullName, $phone ,$internalCode, $mobilePhone, $roomNumber, $objectName, $employeeId] = $row;
+            [$workingPosition, $fullName, $phone, $internalCode, $mobilePhone, $roomNumber, $objectName, $employeeId] = $row;
             if ($employeeId === null || $employeeId === "") continue;
             $employee = $employees->find($employeeId);
             if ($employee === null) continue;
@@ -140,9 +141,12 @@ class EmployeeController extends Controller
         $sortDesc = $sortDesc === "true";
         $search = Str::lower($search);
         $department_id = $request->input('department_id', null);
-        $isHaveInternalCode = $request->input('isHaveInternalCode', '2');
-        $isHaveInternalCode = $isHaveInternalCode === '1';
-
+        $isHaveInternalCode = $request->input('isHaveInternalCode', '2') === '1';
+        $gender = $request->get('gender');
+        $education = $request->get('education');
+        $ageMin = $request->get('age_from');
+        $ageMax = $request->get('age_to');
+        $isFoundersRepresentative = $request->get('founders_representative') ;
 
         $employees = Employee::query();
         $employees->where(function ($q) use ($search) {
@@ -151,6 +155,26 @@ class EmployeeController extends Controller
         });
 
         if ($isHaveInternalCode) $employees->where('internalCode', "!=", '');
+
+        if (!is_null($isFoundersRepresentative)) {
+            $employees->whereNull('founders_representative_date', 'and', $isFoundersRepresentative === "true");
+        }
+
+        if (!is_null($gender)) {
+            $employees->whereNull('gender', $gender);
+        }
+
+        if (!is_null($education)) {
+            $employees->where('education', 'like',  "%$education%");
+        }
+
+        if (!is_null($ageMin)) {
+            $employees->where('date_of_birth','<=', Carbon::now()->subYears($ageMin));
+        }
+
+        if (!is_null($ageMax)) {
+            $employees->where('date_of_birth', '>=', Carbon::now()->subYears($ageMax));
+        }
 
         $employees = $employees->get();
 
@@ -186,11 +210,7 @@ class EmployeeController extends Controller
         ]);
     }
 
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function import(Request $request): JsonResponse
+    public function oldImport(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'file' => ['required', 'max:50000', 'mimes:xlsx,xls,xlsm']
@@ -254,6 +274,73 @@ class EmployeeController extends Controller
         ]);
     }
 
+
+    public function import(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'file' => ['required', 'max:50000', 'mimes:xlsx,xls,xlsm']
+        ]);
+        if ($validator->fails()) return response()->json(['errors' => $validator->errors()], 400);
+
+        $file = $request->file('file');
+        $fileName = "temp/importEmployees." . $file->getClientOriginalExtension();
+        Storage::put($fileName, file_get_contents($file->getRealPath()));
+        $filePath = storage_path('app/public/' . $fileName);
+        $list = [];
+        $excel = IOFactory::load($filePath);
+        $worksheet = $excel->getActiveSheet();
+        foreach ($worksheet->getRowIterator() as $row) {
+            $newRow = [];
+            foreach ($row->getCellIterator() as $cel) {
+                $newRow[] = $cel->getValue();
+            }
+            $list[] = $newRow;
+        }
+        $excel->disconnectWorksheets();
+        unset($excel);
+        unlink($filePath);
+
+        $updateCount = 0;
+        $createCount = 0;
+        $employees = Employee::all();
+        foreach ($list as $index => $row) {
+            if ($index === 0 || $index === 1) continue;
+            if (empty($row[7])) {
+                continue;
+            }
+            $fullName = trim($row[7]);
+            $searchEmployee = $employees->where('fullName', $fullName)->first();
+
+            if ($searchEmployee === null) {
+                $createCount++;
+                continue;
+            }
+            if (!empty($row[8])) {
+                $timestamp = ($row[8] - 25569) * 86400;
+                $searchEmployee->date_of_birth = Carbon::createFromTimestamp($timestamp);
+            }
+            $searchEmployee->workingPosition = $row[6] ?: null;
+            $searchEmployee->gender = $row[9] ?: null;
+            $searchEmployee->education = $row[10] ?: null;
+            if (!empty($row[14])) {
+                $timestamp = ($row[14] - 25569) * 86400;
+                $searchEmployee->date_of_employment = Carbon::createFromTimestamp($timestamp);
+            }
+            if (!empty($row[21])) {
+                $timestamp = ($row[21] - 25569) * 86400;
+                $searchEmployee->founders_representative_date = Carbon::createFromTimestamp($timestamp);
+            }
+            $searchEmployee->save();
+            $updateCount++;
+        }
+
+        return response()->json([
+            'updateCount' => $updateCount,
+            'createCount' => $createCount,
+            'deleteCount' => 0
+        ]);
+    }
+
     /**
      * @param \Illuminate\Http\Request $request
      * @param $id
@@ -262,25 +349,28 @@ class EmployeeController extends Controller
     public function update(Request $request, $id): JsonResponse
     {
         $employee = Employee::find($id);
-        if ($employee === null) return response()->json(['error' => ['fullName' => 'Сотрудникк не найден']], 404);
+        if ($employee === null)
+            return response()->json(['error' => ['fullName' => 'Сотрудникк не найден']], 404);
 
         $validator = Validator::make($request->all(), [
             'internalCode' => 'max:4',
             'mobilePhone' => 'max:20',
             'roomNumber' => 'max:5',
-            'startOfTheDay' => 'required',
-            'endOfTheDay' => 'required',
-            'visitControl' => 'required',
         ]);
-        if ($validator->fails()) return response()->json(['error' => $validator->errors()], 400);
+
+        if ($validator->fails())
+            return response()->json(['error' => $validator->errors()], 400);
+
         $employee->update([
             'internalCode' => $request->input('internalCode') ?? '',
             'mobilePhone' => $request->input('mobilePhone') ?? '',
             'roomNumber' => $request->input('roomNumber') ?? '',
             'workingPosition' => $request->input('workingPosition') ?? '',
-            'startOfTheDay' => $employee->stringifyTime($request->input('startOfTheDay'), 540),
-            'endOfTheDay' => $employee->stringifyTime($request->input('endOfTheDay'), 1080),
-            'visitControl' => $request->input('visitControl', true)
+            'gender' => $request->input('gender'),
+            'date_of_birth' => $request->input('dateOfBirth'),
+            'education' => $request->input('education'),
+            'founders_representative_date' => $request->input('foundersRepresentativeDate') ,
+            'date_of_employment' => $request->input('dateOfEmployment'),
         ]);
 
         return response()->json(['message' => 'Информация о сотруднике обновлена']);

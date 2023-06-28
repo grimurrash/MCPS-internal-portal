@@ -7,11 +7,10 @@
     </b-card-header>
     <b-card-body>
       <b-row>
-
         <!-- Отделы -->
         <b-col
           cols="12"
-          md="8"
+          md="5"
           class="mb-md-0 mb-2"
         >
           <label>Отдел</label>
@@ -28,7 +27,7 @@
         <!-- Наличие внутреннего номера -->
         <b-col
           cols="12"
-          md="4"
+          md="2"
           class="mb-md-0 mb-2"
         >
           <label>Наличие внутреннего номера</label>
@@ -41,6 +40,83 @@
             @input="(val) => $emit('update:isHaveInternalCodeFilter', val)"
           />
         </b-col>
+
+        <b-col
+          cols="12"
+          md="2"
+          class="mb-md-0 mb-2"
+        >
+          <label>Образование</label>
+          <v-select
+            :value="educationFilter"
+            :options="educationOptions"
+            class="w-100"
+            :reduce="val => val.value"
+            @input="(val) => $emit('update:educationFilter', val)"
+          />
+        </b-col>
+
+        <b-col
+          cols="12"
+          md="1"
+          class="mb-md-0 mb-2"
+        >
+          <label>Пол</label>
+          <v-select
+            :value="genderFilter"
+            :options="genderOptions"
+            class="w-100"
+            :reduce="val => val.value"
+            @input="(val) => $emit('update:genderFilter', val)"
+          />
+        </b-col>
+
+        <b-col
+          cols="12"
+          md="2"
+          class="mb-md-0 mb-2"
+        >
+          <label>Представитель учредителя</label>
+          <v-select
+            :value="isFoundersRepresentativeFilter"
+            :options="isFoundersRepresentativeOptions"
+            class="w-100"
+            :reduce="val => val.value"
+            @input="(val) => $emit('update:isFoundersRepresentativeFilter', val)"
+          />
+        </b-col>
+
+        <b-col
+          cols="12"
+          md="2"
+          class="mb-md-0 mb-2"
+        >
+          <label>Возраст от</label>
+          <b-form-input
+            v-model="ageFrom"
+            class="w-100"
+            type="number"
+            placeholder="Возраст от"
+            :reduce="val => val.value"
+            @input="(val) => $emit('update:ageFromFilter', val)"
+          />
+        </b-col>
+
+        <b-col
+          cols="12"
+          md="2"
+          class="mb-md-0 mb-2"
+        >
+          <label>Возраст до</label>
+          <b-form-input
+            v-model="ageTo"
+            class="w-100"
+            type="number"
+            placeholder="Возраст до"
+            :reduce="val => val.value"
+            @input="(val) => $emit('update:ageToFilter', val)"
+          />
+        </b-col>
       </b-row>
     </b-card-body>
   </b-card>
@@ -48,12 +124,13 @@
 
 <script>
 import {
-  BCard, BCardHeader, BCardBody, BRow, BCol,
+  BCard, BCardHeader, BCardBody, BRow, BCol, BFormInput,
 } from 'bootstrap-vue'
 import vSelect from 'vue-select'
 
 export default {
   components: {
+    BFormInput,
     BRow,
     BCol,
     BCard,
@@ -78,6 +155,44 @@ export default {
       type: Array,
       required: true,
     },
+    educationFilter: {
+      type: [String, null],
+      default: null,
+    },
+    educationOptions: {
+      type: Array,
+      required: true,
+    },
+    genderFilter: {
+      type: [String, null],
+      default: null,
+    },
+    genderOptions: {
+      type: Array,
+      required: true,
+    },
+    isFoundersRepresentativeFilter: {
+      type: [Boolean, null],
+      default: null,
+    },
+    isFoundersRepresentativeOptions: {
+      type: Array,
+      required: true,
+    },
+    ageFromFilter: {
+      type: [String, null],
+      default: null,
+    },
+    ageToFilter: {
+      type: [String, null],
+      default: null,
+    },
+  },
+  data() {
+    return {
+      ageTo: '',
+      ageFrom: '',
+    }
   },
 }
 </script>
