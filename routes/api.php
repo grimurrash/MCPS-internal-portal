@@ -17,6 +17,7 @@ use App\Http\Controllers\Management\UserController;
 use App\Http\Controllers\Management\VisitEventController;
 use App\Http\Controllers\ManagerBoardController;
 use App\Http\Controllers\MCPSEventsController;
+use App\Http\Controllers\Organizers\OrganizationProjectController;
 use App\Http\Controllers\Organizers\OrganizerController;
 use App\Http\Controllers\QuestionFormController;
 use App\Http\Controllers\ScriptController;
@@ -104,6 +105,16 @@ Route::group(['middleware' => 'auth:api'], function () {
             });
 
         });
+    });
+
+    Route::group(['middleware' => ['logger:organizer', 'permission:organization-project'], 'prefix' => 'organization-projects'], function () {
+        Route::get('curators', [OrganizationProjectController::class, 'curatorList']);
+        Route::get('organizers', [OrganizationProjectController::class, 'organizerList']);
+        Route::get('/', [OrganizationProjectController::class, 'index']);
+        Route::get('/all', [OrganizationProjectController::class, 'indexAll']);
+        Route::post('/', [OrganizationProjectController::class, 'store']);
+        Route::get('/{projectId}', [OrganizationProjectController::class, 'show']);
+        Route::post('/{projectId}', [OrganizationProjectController::class, 'update']);
     });
 
     Route::prefix('organizer')->group(function () {

@@ -1,5 +1,24 @@
 export default [
   {
+    header: 'Органайзер проектов',
+    action: 'write',
+    resource: 'organization-project',
+  },
+  {
+    title: 'Проекты',
+    icon: 'ClipboardIcon',
+    action: 'write',
+    resource: 'organization-project',
+    route: 'organization-project',
+  },
+  {
+    title: 'Все проекты',
+    icon: 'ClipboardIcon',
+    action: 'manage',
+    resource: 'organization-project',
+    route: 'organization-all-project',
+  },
+  {
     header: 'Органайзер',
     action: 'write',
     resource: 'sport-department',

@@ -343,10 +343,10 @@ export default {
         roomNumber: employeeId.roomNumber,
         workingPosition: employeeId.workingPosition,
         gender: employeeId.gender,
-        dateOfBirth: employeeId.dateOfBirth,
+        dateOfBirth: employeeId.date_of_birth,
         education: employeeId.education,
-        foundersRepresentativeDate: employeeId.foundersRepresentativeDate,
-        dateOfEmployment: employeeId.dateOfEmployment,
+        foundersRepresentativeDate: employeeId.founders_representative_date,
+        dateOfEmployment: employeeId.date_of_employment,
       }
     },
   },

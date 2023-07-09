@@ -1,5 +1,43 @@
 export default [
   {
+    path: '/organization/projects',
+    name: 'organization-project',
+    component: () => import('@/views/apps/organizers/projects/ProjectList.vue'),
+    meta: {
+      resource: 'organization-project',
+      action: 'write',
+      pageTitle: 'Проекты организаций',
+      breadcrumb: [
+        {
+          text: 'Органайзер',
+        },
+        {
+          text: 'Проекты',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
+    path: '/-organization/all-projects',
+    name: 'organization-all-project',
+    component: () => import('@/views/apps/organizers/projects/ProjectListAll.vue'),
+    meta: {
+      resource: 'organization-project',
+      action: 'manage',
+      pageTitle: 'Проекты организаций',
+      breadcrumb: [
+        {
+          text: 'Органайзер',
+        },
+        {
+          text: 'Проекты',
+          active: true,
+        },
+      ],
+    },
+  },
+  {
     path: '/organizer/sport',
     name: 'organizer-sport',
     component: () => import('@/views/apps/organizers/sport/OrganizerList.vue'),
