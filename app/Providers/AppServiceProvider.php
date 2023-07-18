@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Console\Commands\SendMailsCommand;
+use App\Exceptions\Console\Commands\SendMailsCommand;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider

@@ -61,8 +61,31 @@ export default {
       required,
     }
   },
-  setup(props, { emit }) {
-    console.log(props)
+  methods: {
+    onSubmit() {
+      this.$refs.refFormObserver.validate()
+        .then(success => {
+          if (!success) return
+          axios.post('/organization-projects', this.userData)
+            .then(() => {
+              this.$emit('refresh-data')
+              this.$emit('update:is-add-project', false)
+              this.resetUserData()
+            })
+            .catch(() => {
+              this.toast({
+                component: ToastificationContent,
+                props: {
+                  title: 'Ошибка при добавлении проекта',
+                  icon: 'AlertTriangleIcon',
+                  variant: 'danger',
+                },
+              })
+            })
+        })
+    },
+  },
+  setup() {
     const bankProject = ref({
       name: null,
       number: null,
@@ -82,29 +105,6 @@ export default {
       userData.value = JSON.parse(JSON.stringify(bankProject))
     }
 
-    const onSubmit = () => {
-      this.$refs.refFormObserver.validate()
-        .then(success => {
-          if (!success) return
-          axios.post('/organization-projects', userData.value)
-            .then(() => {
-              emit('refresh-data')
-              emit('update:is-add-project', false)
-              resetUserData()
-            })
-            .catch(() => {
-              toast({
-                component: ToastificationContent,
-                props: {
-                  title: 'Ошибка при добавлении проекта',
-                  icon: 'AlertTriangleIcon',
-                  variant: 'danger',
-                },
-              })
-            })
-        })
-    }
-
     const {
       refFormObserver,
       getValidationState,
@@ -113,11 +113,12 @@ export default {
 
     return {
       userData,
-      onSubmit,
+      toast,
 
       refFormObserver,
       getValidationState,
       resetForm,
+      resetUserData,
     }
   },
 }

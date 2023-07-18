@@ -374,10 +374,10 @@ export default {
             {{ 'Куратор: ' + project.curator_name }}
           </b-card-text>
 
-          <b-card-text class="d-flex justify-content-center m-2">
+          <b-card-text class="d-flex flex-md-wrap justify-content-center mb-1">
             <b-button
               variant="success"
-              class="mr-2"
+              class="mt-1 mr-1 ml-1"
               type="submit"
               @click="selectViewProject(project)"
             >
@@ -385,7 +385,7 @@ export default {
             </b-button>
             <b-button
               variant="info"
-              class="mr-2"
+              class="mt-1 mr-1 ml-1"
               type="submit"
               @click="selectEditProject(project)"
             >

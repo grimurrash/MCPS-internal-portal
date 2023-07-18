@@ -14,8 +14,8 @@ export default [
   {
     title: 'Все проекты',
     icon: 'ClipboardIcon',
-    action: 'manage',
-    resource: 'organization-project',
+    action: 'read',
+    resource: 'organization-all-project',
     route: 'organization-all-project',
   },
   {

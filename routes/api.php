@@ -107,11 +107,14 @@ Route::group(['middleware' => 'auth:api'], function () {
         });
     });
 
+    Route::group(['middleware' => ['logger:organizer', 'permission:organization-all-project'], 'prefix' => 'organization-projects'], function () {
+        Route::get('/all', [OrganizationProjectController::class, 'indexAll']);
+    });
     Route::group(['middleware' => ['logger:organizer', 'permission:organization-project'], 'prefix' => 'organization-projects'], function () {
         Route::get('curators', [OrganizationProjectController::class, 'curatorList']);
         Route::get('organizers', [OrganizationProjectController::class, 'organizerList']);
         Route::get('/', [OrganizationProjectController::class, 'index']);
-        Route::get('/all', [OrganizationProjectController::class, 'indexAll']);
+
         Route::post('/', [OrganizationProjectController::class, 'store']);
         Route::get('/{projectId}', [OrganizationProjectController::class, 'show']);
         Route::post('/{projectId}', [OrganizationProjectController::class, 'update']);

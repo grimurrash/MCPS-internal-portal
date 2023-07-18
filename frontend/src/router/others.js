@@ -23,8 +23,8 @@ export default [
     name: 'organization-all-project',
     component: () => import('@/views/apps/organizers/projects/ProjectListAll.vue'),
     meta: {
-      resource: 'organization-project',
-      action: 'manage',
+      resource: 'organization-all-project',
+      action: 'read',
       pageTitle: 'Проекты организаций',
       breadcrumb: [
         {

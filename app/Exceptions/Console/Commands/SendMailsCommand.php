@@ -1,13 +1,11 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Exceptions\Console\Commands;
 
 use App\Mail\AdvisorMail;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Revolution\Google\Sheets\Facades\Sheets;
 use Throwable;
 

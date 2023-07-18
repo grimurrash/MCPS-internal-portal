@@ -25,7 +25,7 @@ class OrganizationProjectListItemResource extends JsonResource
             'curator_id' => $this->curator_id,
             'curator_name' => $this->curator->fullName,
             'organizer_id' => $this->organizer_id,
-            'organizer_name' => $this->organizer->fullName,
+            'j' => $this->organizer->fullName,
             'status' => $this->status,
             'is_edit' => $this->organizer_id === Auth::id()
         ];
